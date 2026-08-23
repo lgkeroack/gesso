@@ -40,7 +40,7 @@ Gesso is a modern iPad application for visual annotation and real-time UI intera
 ### Key Technologies
 - **SwiftUI**: Modern declarative UI framework
 - **NavigationSplitView**: iPad-optimized navigation
-- **AppStorage**: Persistent settings storage
+- **AppStorage**: UI preference storage (theme, haptics)
 - **Gesture Support**: Touch, pinch, zoom, and pan gestures
 - **Preview Providers**: Fast iteration with live previews
 
@@ -51,6 +51,16 @@ Gesso is a modern iPad application for visual annotation and real-time UI intera
 - **Deployment Target**: iOS 17.0
 - **Build System**: Xcode Build System
 - **Version**: 1.0 (Build 1)
+
+## Non-Goals
+
+Gesso is a single-user, in-session tool. The following are explicitly out of scope:
+
+- **Collaboration**: no multi-user sessions, shared canvases, presence, or comment threads
+- **Persistence**: no document store, no saved annotation history, no cloud or iCloud sync
+
+Annotations live in memory for the life of the session. `@AppStorage` is used only for
+lightweight UI preferences (theme, haptics), never for annotation data.
 
 ## Architecture
 
@@ -90,10 +100,9 @@ NavigationSplitView (iPad-optimized)
 
 ### Settings View
 ✅ Haptics toggle
-✅ Auto-save preference
 ✅ Theme selection (System/Light/Dark)
 ✅ Version and build information
-✅ Persistent settings with AppStorage
+✅ UI preferences stored with AppStorage
 
 ### General Features
 ✅ iPad-optimized layout
@@ -121,16 +130,15 @@ NavigationSplitView (iPad-optimized)
 
 This scaffolding provides a solid foundation. Future development can include:
 
-1. **Real-time Collaboration**: Multi-user annotation support
-2. **Drawing Tools**: Brush, shapes, colors, and styles
-3. **Persistence**: Local and cloud data storage
-4. **Export**: PDF, PNG, and other format exports
-5. **Advanced Gestures**: More sophisticated touch interactions
-6. **Undo/Redo**: Full action history
-7. **Layers**: Multiple annotation layers
-8. **Templates**: Pre-built annotation sets
-9. **Integration**: Share extensions and system integration
-10. **Performance**: Optimize for large canvases
+1. **Drawing Tools**: Brush, shapes, colors, and styles
+2. **Advanced Gestures**: More sophisticated touch interactions
+3. **Undo/Redo**: In-session action history
+4. **Layers**: Multiple annotation layers
+5. **Templates**: Pre-built annotation sets
+6. **Export**: PDF, PNG, and other format exports of the current session
+7. **Performance**: Optimize for large canvases
+
+Collaboration and persistence are out of scope — see "Non-Goals" above.
 
 ## How to Use
 

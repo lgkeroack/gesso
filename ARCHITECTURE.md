@@ -68,7 +68,7 @@ GessoApp (@main)
 - **Declarative UI**: All views built with SwiftUI
 - **State Management**: 
   - `@State` for local view state
-  - `@AppStorage` for persistent settings
+  - `@AppStorage` for UI preferences only
 - **Preview Support**: Every view has a preview provider
 - **Gesture Support**: Tap, drag, zoom, and pan gestures
 
@@ -88,7 +88,6 @@ GessoApp (@main)
 
 #### Settings View
 - Enable/disable haptics
-- Auto-save preferences
 - Theme selection (System/Light/Dark)
 - Version and build info
 
@@ -130,16 +129,23 @@ View Update (Automatic)
 Display Changes
 ```
 
+## Non-Goals
+
+Gesso is a single-user, in-session tool. The following are explicitly out of scope:
+
+- **Collaboration**: no multi-user sessions, shared canvases, presence, or comment threads
+- **Persistence**: no document store, no saved annotation history, no cloud or iCloud sync
+
+Annotations live in memory for the life of the session. `@AppStorage` is used only for
+lightweight UI preferences (theme, haptics), never for annotation data.
+
 ## Future Expansion Areas
 
-1. **Real-time Collaboration**: Multi-user annotation support
-2. **Cloud Sync**: iCloud integration for cross-device sync
-3. **Export Features**: PDF/Image export of annotations
-4. **Drawing Tools**: Advanced brush and shape tools
-5. **Undo/Redo**: Comprehensive action history
-6. **Layers**: Support for multiple annotation layers
-7. **Templates**: Pre-built annotation templates
-8. **Share Extensions**: Share annotations to other apps
+1. **Drawing Tools**: Advanced brush and shape tools
+2. **Undo/Redo**: In-session action history
+3. **Layers**: Support for multiple annotation layers
+4. **Templates**: Pre-built annotation templates
+5. **Export Features**: PDF/Image export of the current session
 
 ## Performance Considerations
 

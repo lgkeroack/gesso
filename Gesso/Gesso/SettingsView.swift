@@ -9,14 +9,12 @@ import SwiftUI
 
 struct SettingsView: View {
     @AppStorage("enableHaptics") private var enableHaptics = true
-    @AppStorage("autoSave") private var autoSave = true
     @AppStorage("theme") private var theme = "System"
     
     var body: some View {
         Form {
             Section("General") {
                 Toggle("Enable Haptics", isOn: $enableHaptics)
-                Toggle("Auto-save Annotations", isOn: $autoSave)
             }
             
             Section("Appearance") {

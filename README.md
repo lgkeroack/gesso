@@ -32,6 +32,13 @@ Gesso/
     └── GessoCoreTests/       # Core library tests
 ```
 
+## Non-Goals
+
+Gesso is a single-user, in-session tool. Collaboration (multi-user sessions, shared
+canvases, presence) and persistence (document store, saved annotation history, cloud
+sync) are explicitly out of scope. Annotations live in memory for the life of the
+session.
+
 ## Requirements
 
 - iOS 17.0+
@@ -68,7 +75,7 @@ The app follows modern SwiftUI best practices:
 The app uses:
 - SwiftUI for UI components
 - Combine for reactive programming
-- AppStorage for settings persistence
+- AppStorage for UI preferences (theme, haptics)
 - Preview providers for rapid development
 
 ## License
