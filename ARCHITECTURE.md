@@ -18,7 +18,7 @@
 │  │ Canvas   │───────┼─────▶ CanvasView.swift            │
 │  │          │       │       - Interactive canvas        │
 │  │          │       │       - Zoom & pan gestures       │
-│  ├──────────┤       │       - Real-time drawing         │
+│  ├──────────┤       │       - Real-time annotation      │
 │  │Annotation│───────┼─────▶ AnnotationView.swift        │
 │  │          │       │       - Annotation tools          │
 │  │          │       │       - Annotation list           │
@@ -43,7 +43,7 @@ GessoApp (@main)
         └── Detail Views
             ├── CanvasView
             │   ├── Canvas Background
-            │   ├── Drawing Tools
+            │   ├── Annotation Tools
             │   └── Gesture Controls
             │
             ├── AnnotationView
@@ -75,7 +75,7 @@ GessoApp (@main)
 ### Core Components
 
 #### Canvas View
-- Interactive drawing surface
+- Interactive annotation surface
 - Zoom in/out with pinch gestures
 - Pan to navigate the canvas
 - Reset view functionality
@@ -136,16 +136,15 @@ Gesso is a single-user, in-session tool. The following are explicitly out of sco
 - **Collaboration**: no multi-user sessions, shared canvases, presence, or comment threads
 - **Persistence**: no document store, no saved annotation history, no cloud or iCloud sync
 - **Export**: no PDF, image, or file export; nothing leaves the session
+- **Art and illustration**: no layers, no template galleries, no media library — Gesso is for marking up UI, not for making artwork
 
 Annotations live in memory for the life of the session. `@AppStorage` is used only for
 lightweight UI preferences (theme, haptics), never for annotation data.
 
 ## Future Expansion Areas
 
-1. **Drawing Tools**: Advanced brush and shape tools
+1. **Annotation Marks**: The mark types needed to point at UI (arrow, box, highlight, text)
 2. **Undo/Redo**: In-session action history
-3. **Layers**: Support for multiple annotation layers
-4. **Templates**: Pre-built annotation templates
 
 ## Performance Considerations
 

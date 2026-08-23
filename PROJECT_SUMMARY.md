@@ -59,6 +59,7 @@ Gesso is a single-user, in-session tool. The following are explicitly out of sco
 - **Collaboration**: no multi-user sessions, shared canvases, presence, or comment threads
 - **Persistence**: no document store, no saved annotation history, no cloud or iCloud sync
 - **Export**: no PDF, image, or file export; nothing leaves the session
+- **Art and illustration**: no layers, no template galleries, no media library — Gesso is for marking up UI, not for making artwork
 
 Annotations live in memory for the life of the session. `@AppStorage` is used only for
 lightweight UI preferences (theme, haptics), never for annotation data.
@@ -73,7 +74,7 @@ NavigationSplitView (iPad-optimized)
 │   ├── Annotations Tab
 │   └── Settings Tab
 └── Detail Views
-    ├── Canvas (drawing & interaction)
+    ├── Canvas (annotation & interaction)
     ├── Annotations (management)
     └── Settings (preferences)
 ```
@@ -131,14 +132,13 @@ NavigationSplitView (iPad-optimized)
 
 This scaffolding provides a solid foundation. Future development can include:
 
-1. **Drawing Tools**: Brush, shapes, colors, and styles
+1. **Annotation Marks**: The mark types needed to point at UI (arrow, box, highlight, text)
 2. **Advanced Gestures**: More sophisticated touch interactions
 3. **Undo/Redo**: In-session action history
-4. **Layers**: Multiple annotation layers
-5. **Templates**: Pre-built annotation sets
-6. **Performance**: Optimize for large canvases
+4. **Performance**: Optimize for large canvases
 
-Collaboration, persistence, and export are out of scope — see "Non-Goals" above.
+Collaboration, persistence, export, and art-tool features are out of scope — see
+"Non-Goals" above.
 
 ## How to Use
 

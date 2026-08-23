@@ -39,6 +39,10 @@ canvases, presence), persistence (document store, saved annotation history, clou
 sync), and export (PDF, image, or file output) are explicitly out of scope.
 Annotations live in memory for the life of the session and are not written anywhere.
 
+Gesso is also not a drawing or illustration app. Layers, template galleries, and
+art-tool feature sets are out of scope; marks exist to point at UI, not to compose
+artwork.
+
 ## Requirements
 
 - iOS 17.0+

@@ -53,7 +53,7 @@ The app is built using SwiftUI and follows these principles:
 #### CanvasView.swift
 - Main canvas for UI interaction
 - Supports gestures (zoom, pan)
-- Real-time drawing capabilities
+- Real-time annotation marks
 
 #### AnnotationView.swift
 - Annotation creation and management
@@ -106,6 +106,11 @@ Collaboration (multi-user sessions, shared canvases, presence), persistence (doc
 store, saved annotation history, cloud sync), and export (PDF, image, or file output)
 are out of scope. Annotations are in-memory and session-scoped; do not add storage,
 networking, or file-output layers for them.
+
+Gesso is not a drawing or illustration app. Layers, template galleries, and art-tool
+feature sets are out of scope. Annotation marks exist to point at UI; judge any new
+mark type by whether it makes a UI change easier to talk about, not by what it lets
+someone draw.
 
 ## Code Style
 
