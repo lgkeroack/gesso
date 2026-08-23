@@ -17,15 +17,15 @@
 │  ┌──────────┐       │                                   │
 │  │ Canvas   │───────┼─────▶ CanvasView.swift            │
 │  │          │       │       - Interactive canvas        │
-│  │          │       │       - Zoom & pan gestures       │
-│  ├──────────┤       │       - Real-time annotation      │
+│  │          │       │       - Zoom gesture (pinch)      │
+│  ├──────────┤       │       - Placeholder content       │
 │  │Annotation│───────┼─────▶ AnnotationView.swift        │
-│  │          │       │       - Annotation tools          │
-│  │          │       │       - Annotation list           │
-│  ├──────────┤       │       - Edit/Delete functions     │
+│  │          │       │       - Placeholder labels        │
+│  │          │       │       - Annotation model (unused) │
+│  ├──────────┤       │       - No list or editing yet    │
 │  │ Settings │───────┼─────▶ SettingsView.swift          │
 │  │          │       │       - App preferences           │
-│  │          │       │       - User settings             │
+│  │          │       │       - Haptics and theme         │
 │  └──────────┘       │       - About info                │
 └─────────────────────┴───────────────────────────────────┘
 ```
@@ -43,13 +43,10 @@ GessoApp (@main)
         └── Detail Views
             ├── CanvasView
             │   ├── Canvas Background
-            │   ├── Annotation Tools
-            │   └── Gesture Controls
+            │   └── Zoom Gesture
             │
             ├── AnnotationView
-            │   ├── Annotation List
-            │   ├── Annotation Editor
-            │   └── Annotation Display
+            │   └── Placeholder Labels
             │
             └── SettingsView
                 ├── General Settings
@@ -70,21 +67,18 @@ GessoApp (@main)
   - `@State` for local view state
   - `@AppStorage` for UI preferences only
 - **Preview Support**: Every view has a preview provider
-- **Gesture Support**: Tap, drag, zoom, and pan gestures
+- **Gesture Support**: Pinch-to-zoom on the canvas
 
 ### Core Components
 
 #### Canvas View
-- Interactive annotation surface
-- Zoom in/out with pinch gestures
-- Pan to navigate the canvas
-- Reset view functionality
+- Static canvas background (no mark-making yet)
+- Zoom in/out with pinch gesture
+- Reset view button
 
 #### Annotation View
-- Create visual annotations
-- Manage annotation list
-- Edit annotation properties
-- Delete annotations
+- Placeholder text only
+- Declares an `Annotation` model (id, position, text, color) that is not yet used
 
 #### Settings View
 - Enable/disable haptics
@@ -96,7 +90,7 @@ GessoApp (@main)
 - **Platform**: iOS 17.0+, iPadOS 17.0+
 - **Language**: Swift 5.9+
 - **UI Framework**: SwiftUI
-- **Architecture**: MVVM (Model-View-ViewModel)
+- **Architecture**: Plain SwiftUI views; no view-model layer yet
 - **Build System**: Xcode 15.2+
 - **Package Manager**: Swift Package Manager
 
@@ -122,7 +116,7 @@ User Input
     ↓
 View (SwiftUI)
     ↓
-State Change (@State, @StateObject)
+State Change (@State, @AppStorage)
     ↓
 View Update (Automatic)
     ↓

@@ -50,7 +50,26 @@ Do not add storage, networking, or file-output layers for annotation data.
 
 ---
 
-## 4. Git and delivery
+## 4. Documentation accuracy
+
+Docs must describe what is built, not what is planned. At every step, update the
+affected docs in the same change so they stay true. Never mark a feature complete
+that is not implemented.
+
+---
+
+## 5. Communication
+
+Be brief. Answer the question and stop.
+
+- No preamble, no restating the request, no closing summaries of what was just said.
+- Do not frame observations as admissions ("to be honest", "you're right that",
+  "fair challenge", "I should own that"). State the fact plainly.
+- Do not offer additional work at the end of a reply.
+
+---
+
+## 6. Git and delivery
 
 - Develop on the branch named in the task description. Never push elsewhere without
   explicit permission.
@@ -59,7 +78,7 @@ Do not add storage, networking, or file-output layers for annotation data.
 
 ---
 
-## 5. Maintaining this file
+## 7. Maintaining this file
 
 - When the owner gives a directive meant to persist, add it here in the same session,
   and say that it was added.
@@ -80,3 +99,5 @@ Do not add storage, networking, or file-output layers for annotation data.
 | 2026-08-23 | Descope layers and templates | "This is not an application which will allow people to make art." |
 | 2026-08-23 | Do no unrequested work | Applies to this project and all future conversations. Established after unrequested edits were made alongside requested ones. |
 | 2026-08-23 | Maintain this master instruction file | Track current and future directives here. |
+| 2026-08-23 | Keep all docs accurate at every step | Scaffolding docs claimed unbuilt features as complete. |
+| 2026-08-23 | Be far less verbose; no roundabout framing | Stick to the point; drop admission-style phrasing. |

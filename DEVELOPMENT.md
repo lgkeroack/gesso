@@ -35,7 +35,7 @@ This guide will help you set up and develop the Gesso iPad app.
 The app is built using SwiftUI and follows these principles:
 
 - **Declarative UI**: All views are built using SwiftUI
-- **State Management**: Uses @State, @StateObject, and @AppStorage
+- **State Management**: Uses @State and @AppStorage
 - **Navigation**: NavigationSplitView for iPad-optimized layout
 - **Modular Design**: Separate views for different features
 
@@ -51,14 +51,13 @@ The app is built using SwiftUI and follows these principles:
 - Manages tab selection
 
 #### CanvasView.swift
-- Main canvas for UI interaction
-- Supports gestures (zoom, pan)
-- Real-time annotation marks
+- Canvas placeholder
+- Pinch-to-zoom gesture and a reset button
+- No mark-making implemented yet
 
 #### AnnotationView.swift
-- Annotation creation and management
-- Display annotation overlays
-- Edit and delete annotations
+- Placeholder view
+- Declares the `Annotation` model, which is not yet used
 
 #### SettingsView.swift
 - App preferences

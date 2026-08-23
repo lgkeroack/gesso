@@ -47,6 +47,7 @@ When the app launches, you'll see:
 2. **Canvas**: 
    - Use pinch gesture on trackpad to zoom (or Option + drag)
    - Click the refresh button to reset the view
+   - The canvas is a placeholder; there is nothing to draw with yet
 3. **Settings**:
    - Toggle haptics on/off
    - Change theme preferences

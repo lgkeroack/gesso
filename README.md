@@ -4,14 +4,16 @@ An app which lets you visually annotate and respond to UI changes in real time.
 
 ## Overview
 
-Gesso is a modern iPad application built with SwiftUI, designed to provide an intuitive interface for visual annotation and real-time UI interaction.
+Gesso is an iPad application built with SwiftUI for visual annotation and real-time UI interaction.
 
 ## Features
 
-- **Canvas View**: Interactive canvas for real-time UI manipulation
-- **Annotation System**: Create and manage visual annotations
 - **iPad Optimized**: Built specifically for iPad with split-view navigation
 - **Modern Architecture**: Built with SwiftUI and iOS 17+
+
+Current state: scaffolding. Sidebar navigation and the settings screen work. The
+canvas is a placeholder with a pinch-to-zoom gesture, and annotation is not yet
+implemented.
 
 ## Project Structure
 
@@ -70,7 +72,6 @@ swift test
 The app follows modern SwiftUI best practices:
 
 - **SwiftUI**: Declarative UI framework
-- **MVVM Pattern**: Model-View-ViewModel architecture
 - **iPad-First Design**: Optimized for iPad with NavigationSplitView
 - **Modular Structure**: Core functionality separated into reusable modules
 
@@ -78,7 +79,6 @@ The app follows modern SwiftUI best practices:
 
 The app uses:
 - SwiftUI for UI components
-- Combine for reactive programming
 - AppStorage for UI preferences (theme, haptics)
 - Preview providers for rapid development
 

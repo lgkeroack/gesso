@@ -8,8 +8,8 @@ Gesso is a modern iPad application for visual annotation and real-time UI intera
 ### Core Application Files
 - **GessoApp.swift**: Main application entry point using SwiftUI's @main
 - **ContentView.swift**: Root navigation with iPad-optimized NavigationSplitView
-- **CanvasView.swift**: Interactive canvas with zoom and pan gestures
-- **AnnotationView.swift**: Annotation creation and management interface
+- **CanvasView.swift**: Canvas placeholder with a pinch-to-zoom gesture
+- **AnnotationView.swift**: Placeholder view; declares the `Annotation` model
 - **SettingsView.swift**: User preferences and app settings
 
 ### Project Configuration
@@ -41,7 +41,7 @@ Gesso is a modern iPad application for visual annotation and real-time UI intera
 - **SwiftUI**: Modern declarative UI framework
 - **NavigationSplitView**: iPad-optimized navigation
 - **AppStorage**: UI preference storage (theme, haptics)
-- **Gesture Support**: Touch, pinch, zoom, and pan gestures
+- **Gesture Support**: Pinch-to-zoom on the canvas
 - **Preview Providers**: Fast iteration with live previews
 
 ### App Configuration
@@ -74,31 +74,30 @@ NavigationSplitView (iPad-optimized)
 │   ├── Annotations Tab
 │   └── Settings Tab
 └── Detail Views
-    ├── Canvas (annotation & interaction)
-    ├── Annotations (management)
+    ├── Canvas (placeholder)
+    ├── Annotations (placeholder)
     └── Settings (preferences)
 ```
 
 ### Design Patterns
-- **MVVM**: Model-View-ViewModel architecture
+- **Plain SwiftUI views**: no view-model layer yet
 - **Declarative UI**: SwiftUI views
-- **State Management**: @State, @StateObject, @AppStorage
+- **State Management**: @State, @AppStorage
 - **Modular Design**: Separated concerns and reusable components
 
 ## Features Implemented
 
 ### Canvas View
-✅ Interactive canvas surface
-✅ Zoom in/out with gestures
-✅ Pan navigation
-✅ Reset view functionality
-✅ Toolbar with actions
+✅ Static canvas surface
+✅ Pinch-to-zoom gesture
+✅ Reset view toolbar button
+❌ Pan (an `offset` exists but nothing writes to it)
+❌ Mark-making of any kind
 
 ### Annotation View
-✅ Annotation structure defined
-✅ Basic annotation display
-✅ List interface ready
-✅ Framework for editing
+✅ `Annotation` model declared (id, position, text, color)
+❌ Model is never instantiated or rendered
+❌ No list, no editing, no deletion
 
 ### Settings View
 ✅ Haptics toggle
@@ -115,18 +114,15 @@ NavigationSplitView (iPad-optimized)
 
 ## Project Statistics
 
-- **Swift Files**: 6 (5 views + 1 core library)
-- **Documentation Files**: 5 markdown files
-- **Lines of Code**: ~300 (app) + configuration
-- **Test Coverage**: Basic unit tests implemented
-- **Build Time**: ~15 seconds (initial)
+- **Swift Files**: 7 (4 views + app entry + core library + test)
+- **Documentation Files**: 7 markdown files
+- **Lines of Code**: ~250 Swift
+- **Test Coverage**: One test, asserting a version string
 
-## Build & Test Status
+## Status
 
-✅ Swift Package Manager build: **PASSED**
-✅ Unit Tests: **PASSED** (1/1)
-✅ Project Structure: **VALID**
-✅ Xcode Project: **READY**
+This is scaffolding. Navigation and settings work; the canvas and annotation
+features described in the product overview are not implemented.
 
 ## What's Next
 
