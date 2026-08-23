@@ -4,16 +4,16 @@ An app which lets you visually annotate and respond to UI changes in real time.
 
 ## Overview
 
-Gesso is an iPad application built with SwiftUI for visual annotation and real-time UI interaction.
+Gesso is an iPad application built with SwiftUI for visual annotation and real-time UI interaction. It is currently an empty scaffold.
 
 ## Features
 
-- **iPad Optimized**: Built specifically for iPad with split-view navigation
-- **Modern Architecture**: Built with SwiftUI and iOS 17+
+- **Stylus Input**: Receives Apple Pencil input across the full screen
+- **iPad Optimized**: Built specifically for iPad, iOS 17+
 
-Current state: scaffolding. Sidebar navigation and the settings screen work. The
-canvas is a placeholder with a pinch-to-zoom gesture, and annotation is not yet
-implemented.
+Current state: an empty scaffold. There is no navigation and no screens. The
+only capability present is receiving stylus input; the samples are not yet used
+for anything.
 
 ## Project Structure
 
@@ -23,10 +23,7 @@ Gesso/
 │   ├── Gesso.xcodeproj/       # Xcode project file
 │   └── Gesso/                 # App source files
 │       ├── GessoApp.swift     # App entry point
-│       ├── ContentView.swift  # Main navigation view
-│       ├── CanvasView.swift   # Canvas interface
-│       ├── AnnotationView.swift # Annotation tools
-│       ├── SettingsView.swift # Settings interface
+│       ├── ContentView.swift  # Stylus input surface
 │       └── Assets.xcassets/   # App assets
 ├── Sources/                   # Swift Package Manager sources
 │   └── GessoCore/            # Core library
@@ -72,14 +69,13 @@ swift test
 The app follows modern SwiftUI best practices:
 
 - **SwiftUI**: Declarative UI framework
-- **iPad-First Design**: Optimized for iPad with NavigationSplitView
+- **iPad-First Design**: Optimized for iPad
 - **Modular Structure**: Core functionality separated into reusable modules
 
 ## Development
 
 The app uses:
 - SwiftUI for UI components
-- AppStorage for UI preferences (theme, haptics)
 - Preview providers for rapid development
 
 ## License

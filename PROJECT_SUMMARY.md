@@ -1,16 +1,14 @@
 # Gesso - Project Summary
 
 ## Overview
-Gesso is a modern iPad application for visual annotation and real-time UI interaction, built with SwiftUI and optimized for iOS 17+.
+Gesso is an iPad application for visual annotation and real-time UI interaction. It is currently an empty scaffold whose only capability is receiving stylus input.
 
 ## Project Contents
 
 ### Core Application Files
-- **GessoApp.swift**: Main application entry point using SwiftUI's @main
-- **ContentView.swift**: Root navigation with iPad-optimized NavigationSplitView
-- **CanvasView.swift**: Canvas placeholder with a pinch-to-zoom gesture
-- **AnnotationView.swift**: Placeholder view; declares the `Annotation` model
-- **SettingsView.swift**: User preferences and app settings
+- **GessoApp.swift**: Application entry point using SwiftUI's @main
+- **ContentView.swift**: Full-screen stylus input surface; also defines
+  `StylusInputView` and `StylusInputSurface`
 
 ### Project Configuration
 - **Gesso.xcodeproj**: Complete Xcode project configuration
@@ -39,9 +37,7 @@ Gesso is a modern iPad application for visual annotation and real-time UI intera
 
 ### Key Technologies
 - **SwiftUI**: Modern declarative UI framework
-- **NavigationSplitView**: iPad-optimized navigation
-- **AppStorage**: UI preference storage (theme, haptics)
-- **Gesture Support**: Pinch-to-zoom on the canvas
+- **Stylus Input**: Apple Pencil touches received via a UIKit bridge
 - **Preview Providers**: Fast iteration with live previews
 
 ### App Configuration
@@ -61,80 +57,45 @@ Gesso is a single-user, in-session tool. The following are explicitly out of sco
 - **Export**: no PDF, image, or file export; nothing leaves the session
 - **Art and illustration**: no layers, no template galleries, no media library — Gesso is for marking up UI, not for making artwork
 
-Annotations live in memory for the life of the session. `@AppStorage` is used only for
-lightweight UI preferences (theme, haptics), never for annotation data.
+Annotations live in memory for the life of the session.
 
 ## Architecture
 
-### App Structure
 ```
-NavigationSplitView (iPad-optimized)
-├── Sidebar
-│   ├── Canvas Tab
-│   ├── Annotations Tab
-│   └── Settings Tab
-└── Detail Views
-    ├── Canvas (placeholder)
-    ├── Annotations (placeholder)
-    └── Settings (preferences)
+GessoApp (@main)
+└── ContentView
+    └── StylusInputView → StylusInputSurface (UIView)
 ```
 
+No navigation, no sidebar, no screens.
+
 ### Design Patterns
-- **Plain SwiftUI views**: no view-model layer yet
-- **Declarative UI**: SwiftUI views
-- **State Management**: @State, @AppStorage
-- **Modular Design**: Separated concerns and reusable components
+- **Plain SwiftUI views**: no view-model layer
+- **State Management**: none currently held
+- **UIKit bridge**: `UIViewRepresentable` for stylus input
 
 ## Features Implemented
 
-### Canvas View
-✅ Static canvas surface
-✅ Pinch-to-zoom gesture
-✅ Reset view toolbar button
-❌ Pan (an `offset` exists but nothing writes to it)
-❌ Mark-making of any kind
+✅ Apple Pencil input received (touch type filtered, coalesced samples read)
+✅ iPad-optimized target, all orientations
+✅ Asset catalog structure
 
-### Annotation View
-✅ `Annotation` model declared (id, position, text, color)
-❌ Model is never instantiated or rendered
-❌ No list, no editing, no deletion
-
-### Settings View
-✅ Haptics toggle
-✅ Theme selection (System/Light/Dark)
-✅ Version and build information
-✅ UI preferences stored with AppStorage
-
-### General Features
-✅ iPad-optimized layout
-✅ All orientation support
-✅ SwiftUI previews for all views
-✅ Clean, modern design
-✅ Proper asset catalog structure
+Nothing else. Stylus samples are received and discarded.
 
 ## Project Statistics
 
-- **Swift Files**: 7 (4 views + app entry + core library + test)
+- **Swift Files**: 4 (app entry, ContentView, core library, test)
 - **Documentation Files**: 7 markdown files
-- **Lines of Code**: ~250 Swift
+- **Lines of Code**: ~90 Swift
 - **Test Coverage**: One test, asserting a version string
 
 ## Status
 
-This is scaffolding. Navigation and settings work; the canvas and annotation
-features described in the product overview are not implemented.
+An empty iPad scaffold. The only capability present is receiving stylus input.
 
 ## What's Next
 
-This scaffolding provides a solid foundation. Future development can include:
-
-1. **Annotation Marks**: The mark types needed to point at UI (arrow, box, highlight, text)
-2. **Advanced Gestures**: More sophisticated touch interactions
-3. **Undo/Redo**: In-session action history
-4. **Performance**: Optimize for large canvases
-
-Collaboration, persistence, export, and art-tool features are out of scope — see
-"Non-Goals" above.
+Nothing is scheduled. Features are added only when asked for.
 
 ## How to Use
 
@@ -176,9 +137,6 @@ gesso/
 │   └── Gesso/
 │       ├── GessoApp.swift
 │       ├── ContentView.swift
-│       ├── CanvasView.swift
-│       ├── AnnotationView.swift
-│       ├── SettingsView.swift
 │       ├── Assets.xcassets/
 │       └── Preview Content/
 ├── Sources/

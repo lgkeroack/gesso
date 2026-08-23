@@ -3,94 +3,36 @@
 ## Application Structure
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                      GessoApp.swift                      │
-│                    (Main App Entry)                      │
-└───────────────────┬─────────────────────────────────────┘
-                    │
-                    ▼
-┌─────────────────────────────────────────────────────────┐
-│                    ContentView.swift                     │
-│              (NavigationSplitView - iPad)                │
-├─────────────────────┬───────────────────────────────────┤
-│    Sidebar          │         Detail View               │
-│  ┌──────────┐       │                                   │
-│  │ Canvas   │───────┼─────▶ CanvasView.swift            │
-│  │          │       │       - Interactive canvas        │
-│  │          │       │       - Zoom gesture (pinch)      │
-│  ├──────────┤       │       - Placeholder content       │
-│  │Annotation│───────┼─────▶ AnnotationView.swift        │
-│  │          │       │       - Placeholder labels        │
-│  │          │       │       - Annotation model (unused) │
-│  ├──────────┤       │       - No list or editing yet    │
-│  │ Settings │───────┼─────▶ SettingsView.swift          │
-│  │          │       │       - App preferences           │
-│  │          │       │       - Haptics and theme         │
-│  └──────────┘       │       - About info                │
-└─────────────────────┴───────────────────────────────────┘
-```
-
-## View Hierarchy
-
-```
 GessoApp (@main)
-    └── ContentView
-        ├── Sidebar Navigation
-        │   ├── Canvas Tab
-        │   ├── Annotations Tab
-        │   └── Settings Tab
-        │
-        └── Detail Views
-            ├── CanvasView
-            │   ├── Canvas Background
-            │   └── Zoom Gesture
-            │
-            ├── AnnotationView
-            │   └── Placeholder Labels
-            │
-            └── SettingsView
-                ├── General Settings
-                ├── Appearance
-                └── About Section
+    └── WindowGroup
+        └── ContentView
+            └── StylusInputView          (UIViewRepresentable)
+                └── StylusInputSurface   (UIView, receives Pencil touches)
 ```
 
-## Key Features
+The app is an empty scaffold. There is no navigation, no sidebar, and no
+screens. `ContentView` hosts a single full-screen surface whose only job is to
+receive Apple Pencil input.
 
-### iPad-Optimized Layout
-- **NavigationSplitView**: Provides a sidebar + detail pane layout
-- **All Orientations**: Supports portrait and landscape modes
-- **Adaptive UI**: Automatically adjusts to screen size
+## Core Component
 
-### Modern SwiftUI Architecture
-- **Declarative UI**: All views built with SwiftUI
-- **State Management**: 
-  - `@State` for local view state
-  - `@AppStorage` for UI preferences only
-- **Preview Support**: Every view has a preview provider
-- **Gesture Support**: Pinch-to-zoom on the canvas
+### StylusInputSurface
 
-### Core Components
+A `UIView` subclass bridged into SwiftUI by `StylusInputView`. It overrides the
+four `touches*` methods and filters for `UITouch.TouchType.pencil`, reading
+coalesced touches so the full Pencil sample rate is available rather than one
+point per frame. The samples are not consumed by anything yet — this is the
+hook point for future work.
 
-#### Canvas View
-- Static canvas background (no mark-making yet)
-- Zoom in/out with pinch gesture
-- Reset view button
-
-#### Annotation View
-- Placeholder text only
-- Declares an `Annotation` model (id, position, text, color) that is not yet used
-
-#### Settings View
-- Enable/disable haptics
-- Theme selection (System/Light/Dark)
-- Version and build info
+Stylus input is handled in UIKit because SwiftUI gestures do not expose touch
+type.
 
 ## Technical Stack
 
 - **Platform**: iOS 17.0+, iPadOS 17.0+
 - **Language**: Swift 5.9+
 - **UI Framework**: SwiftUI
-- **Architecture**: Plain SwiftUI views; no view-model layer yet
+- **Architecture**: SwiftUI shell over a UIKit stylus input surface
 - **Build System**: Xcode 15.2+
 - **Package Manager**: Swift Package Manager
 
@@ -99,28 +41,12 @@ GessoApp (@main)
 ```
 Gesso/
 ├── App Layer (Gesso/)
-│   ├── Views (SwiftUI)
-│   ├── Assets
-│   └── Preview Content
+│   ├── GessoApp.swift
+│   ├── ContentView.swift
+│   └── Assets
 │
 └── Core Layer (Sources/GessoCore/)
-    ├── Models
-    ├── Business Logic
-    └── Utilities
-```
-
-## Data Flow
-
-```
-User Input
-    ↓
-View (SwiftUI)
-    ↓
-State Change (@State, @AppStorage)
-    ↓
-View Update (Automatic)
-    ↓
-Display Changes
+    └── Version constant only
 ```
 
 ## Non-Goals
@@ -132,13 +58,12 @@ Gesso is a single-user, in-session tool. The following are explicitly out of sco
 - **Export**: no PDF, image, or file export; nothing leaves the session
 - **Art and illustration**: no layers, no template galleries, no media library — Gesso is for marking up UI, not for making artwork
 
-Annotations live in memory for the life of the session. `@AppStorage` is used only for
-lightweight UI preferences (theme, haptics), never for annotation data.
+Annotations live in memory for the life of the session.
 
 ## Future Expansion Areas
 
-1. **Annotation Marks**: The mark types needed to point at UI (arrow, box, highlight, text)
-2. **Undo/Redo**: In-session action history
+Nothing is scheduled. The scaffold is deliberately empty; features are added
+only when asked for.
 
 ## Performance Considerations
 

@@ -32,12 +32,12 @@ This guide will help you set up and develop the Gesso iPad app.
 
 ### App Structure
 
-The app is built using SwiftUI and follows these principles:
+The app is an empty scaffold built with SwiftUI:
 
-- **Declarative UI**: All views are built using SwiftUI
-- **State Management**: Uses @State and @AppStorage
-- **Navigation**: NavigationSplitView for iPad-optimized layout
-- **Modular Design**: Separate views for different features
+- **Declarative UI**: Views are built using SwiftUI
+- **UIKit bridge**: Stylus input is handled in UIKit, since SwiftUI gestures do
+  not expose touch type
+- **No navigation**: There is no sidebar, tab bar, or screen hierarchy
 
 ### Key Components
 
@@ -46,23 +46,10 @@ The app is built using SwiftUI and follows these principles:
 - Defines the app scene structure
 
 #### ContentView.swift
-- Root navigation view
-- Implements NavigationSplitView for iPad
-- Manages tab selection
-
-#### CanvasView.swift
-- Canvas placeholder
-- Pinch-to-zoom gesture and a reset button
-- No mark-making implemented yet
-
-#### AnnotationView.swift
-- Placeholder view
-- Declares the `Annotation` model, which is not yet used
-
-#### SettingsView.swift
-- App preferences
-- UI preference storage via @AppStorage
-- About information
+- Hosts a full-screen `StylusInputView`
+- Defines `StylusInputSurface`, a `UIView` that receives Apple Pencil touches
+  and reads coalesced samples
+- Samples are not consumed yet; `receive(_:with:)` is the hook point
 
 ## Development Workflow
 
@@ -123,7 +110,6 @@ someone draw.
 
 The app is optimized for iPad:
 
-- Uses NavigationSplitView for sidebar navigation
 - Supports all iPad orientations
 - Leverages iPad screen real estate
 - Implements touch gestures

@@ -2,58 +2,62 @@
 //  ContentView.swift
 //  Gesso
 //
-//  An app which lets you visually annotate and respond to UI changes in real time
+//  Empty scaffold. The only capability present is stylus input.
 //
 
 import SwiftUI
+import UIKit
 
 struct ContentView: View {
-    @State private var selectedTab: Tab = .canvas
-    
     var body: some View {
-        NavigationSplitView {
-            // Sidebar
-            List(Tab.allCases, selection: $selectedTab) { tab in
-                NavigationLink(value: tab) {
-                    Label(tab.title, systemImage: tab.icon)
-                }
-            }
-            .navigationTitle("Gesso")
-            .navigationBarTitleDisplayMode(.large)
-        } detail: {
-            // Detail view
-            switch selectedTab {
-            case .canvas:
-                CanvasView()
-            case .annotations:
-                AnnotationView()
-            case .settings:
-                SettingsView()
-            }
-        }
+        StylusInputView()
+            .ignoresSafeArea()
     }
 }
 
-enum Tab: String, CaseIterable, Identifiable {
-    case canvas
-    case annotations
-    case settings
-    
-    var id: String { rawValue }
-    
-    var title: String {
-        switch self {
-        case .canvas: return "Canvas"
-        case .annotations: return "Annotations"
-        case .settings: return "Settings"
-        }
+/// Full-screen surface that receives Apple Pencil input.
+struct StylusInputView: UIViewRepresentable {
+    func makeUIView(context: Context) -> StylusInputSurface {
+        StylusInputSurface()
     }
-    
-    var icon: String {
-        switch self {
-        case .canvas: return "paintbrush.pointed"
-        case .annotations: return "hand.draw"
-        case .settings: return "gearshape"
+
+    func updateUIView(_ uiView: StylusInputSurface, context: Context) {}
+}
+
+final class StylusInputSurface: UIView {
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        backgroundColor = .systemBackground
+        isMultipleTouchEnabled = true
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        receive(touches, with: event)
+    }
+
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        receive(touches, with: event)
+    }
+
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        receive(touches, with: event)
+    }
+
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        receive(touches, with: event)
+    }
+
+    /// Entry point for stylus input. Coalesced touches are used so the full
+    /// Pencil sample rate is available rather than one point per frame.
+    /// Nothing consumes the samples yet.
+    private func receive(_ touches: Set<UITouch>, with event: UIEvent?) {
+        for touch in touches where touch.type == .pencil {
+            _ = event?.coalescedTouches(for: touch) ?? [touch]
         }
     }
 }

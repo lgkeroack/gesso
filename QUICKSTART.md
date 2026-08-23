@@ -37,21 +37,14 @@ Or in Xcode:
 
 ### What You'll See
 
-When the app launches, you'll see:
-- **Sidebar**: Three navigation options (Canvas, Annotations, Settings)
-- **Main View**: The Canvas view by default
+A blank full-screen surface. The app is an empty scaffold — there is no
+navigation and no screens.
 
-### Try These Features
+### Stylus Input
 
-1. **Navigate**: Click on different sidebar items to switch views
-2. **Canvas**: 
-   - Use pinch gesture on trackpad to zoom (or Option + drag)
-   - Click the refresh button to reset the view
-   - The canvas is a placeholder; there is nothing to draw with yet
-3. **Settings**:
-   - Toggle haptics on/off
-   - Change theme preferences
-   - View app version
+The surface receives Apple Pencil input. Nothing is drawn: the touch samples
+are read and discarded. In the simulator there is no Pencil, so there is
+nothing visible to try.
 
 ### Testing with Swift Package Manager
 
