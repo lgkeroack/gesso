@@ -102,9 +102,10 @@ xcodebuild -scheme Gesso -configuration Release
 
 ## Non-Goals
 
-Collaboration (multi-user sessions, shared canvases, presence) and persistence
-(document store, saved annotation history, cloud sync) are out of scope. Annotations
-are in-memory and session-scoped; do not add storage or networking layers for them.
+Collaboration (multi-user sessions, shared canvases, presence), persistence (document
+store, saved annotation history, cloud sync), and export (PDF, image, or file output)
+are out of scope. Annotations are in-memory and session-scoped; do not add storage,
+networking, or file-output layers for them.
 
 ## Code Style
 

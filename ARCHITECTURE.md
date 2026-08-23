@@ -135,6 +135,7 @@ Gesso is a single-user, in-session tool. The following are explicitly out of sco
 
 - **Collaboration**: no multi-user sessions, shared canvases, presence, or comment threads
 - **Persistence**: no document store, no saved annotation history, no cloud or iCloud sync
+- **Export**: no PDF, image, or file export; nothing leaves the session
 
 Annotations live in memory for the life of the session. `@AppStorage` is used only for
 lightweight UI preferences (theme, haptics), never for annotation data.
@@ -145,7 +146,6 @@ lightweight UI preferences (theme, haptics), never for annotation data.
 2. **Undo/Redo**: In-session action history
 3. **Layers**: Support for multiple annotation layers
 4. **Templates**: Pre-built annotation templates
-5. **Export Features**: PDF/Image export of the current session
 
 ## Performance Considerations
 

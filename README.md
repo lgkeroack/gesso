@@ -35,9 +35,9 @@ Gesso/
 ## Non-Goals
 
 Gesso is a single-user, in-session tool. Collaboration (multi-user sessions, shared
-canvases, presence) and persistence (document store, saved annotation history, cloud
-sync) are explicitly out of scope. Annotations live in memory for the life of the
-session.
+canvases, presence), persistence (document store, saved annotation history, cloud
+sync), and export (PDF, image, or file output) are explicitly out of scope.
+Annotations live in memory for the life of the session and are not written anywhere.
 
 ## Requirements
 
