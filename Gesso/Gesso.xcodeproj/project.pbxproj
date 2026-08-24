@@ -8,23 +8,68 @@
 
 /* Begin PBXBuildFile section */
 		AA0001 /* GessoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0001 /* GessoApp.swift */; };
-		AA0002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0002 /* ContentView.swift */; };
 		AA0003 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BB0003 /* Assets.xcassets */; };
 		AA0004 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BB0004 /* Preview Assets.xcassets */; };
-		AA0005 /* AnnotationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0005 /* AnnotationView.swift */; };
-		AA0006 /* CanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0006 /* CanvasView.swift */; };
 		AA0007 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0007 /* SettingsView.swift */; };
+		AA0008 /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0009 /* Keychain.swift */; };
+		AA0009 /* PKCE.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0010 /* PKCE.swift */; };
+		AA0010 /* GitHubAuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0011 /* GitHubAuthManager.swift */; };
+		AA0011 /* ClaudeAuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0012 /* ClaudeAuthManager.swift */; };
+		AA0012 /* ConnectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0013 /* ConnectView.swift */; };
+		AA0013 /* GitHubRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0014 /* GitHubRepository.swift */; };
+		AA0014 /* GitHubReposService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0015 /* GitHubReposService.swift */; };
+		AA0015 /* RepoSelectionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0016 /* RepoSelectionStore.swift */; };
+		AA0016 /* RepoPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0017 /* RepoPickerView.swift */; };
+		AA0017 /* ToolMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0018 /* ToolMode.swift */; };
+		AA0018 /* WebViewStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0019 /* WebViewStore.swift */; };
+		AA0019 /* WebViewRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0020 /* WebViewRepresentable.swift */; };
+		AA0020 /* FloatingToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0021 /* FloatingToolbar.swift */; };
+		AA0021 /* DrawingCanvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0022 /* DrawingCanvas.swift */; };
+		AA0022 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0023 /* MainView.swift */; };
+		AA0023 /* ClaudeAPIKeySheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0024 /* ClaudeAPIKeySheet.swift */; };
+		AA0024 /* AnnotationStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0025 /* AnnotationStyle.swift */; };
+		AA0025 /* HandwritingRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0026 /* HandwritingRecognizer.swift */; };
+		AA0026 /* AnnotationCompositor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0027 /* AnnotationCompositor.swift */; };
+		AA0027 /* GitHubRepoFileService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0028 /* GitHubRepoFileService.swift */; };
+		AA0028 /* ClaudeAgentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0029 /* ClaudeAgentService.swift */; };
+		AA0029 /* ChatMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0030 /* ChatMessage.swift */; };
+		AA0030 /* ConversationStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0031 /* ConversationStore.swift */; };
+		AA0031 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0032 /* ChatView.swift */; };
+		AA0032 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0033 /* Theme.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		BB0001 /* GessoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GessoApp.swift; sourceTree = "<group>"; };
-		BB0002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		BB0003 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		BB0004 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		BB0005 /* AnnotationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationView.swift; sourceTree = "<group>"; };
-		BB0006 /* CanvasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasView.swift; sourceTree = "<group>"; };
 		BB0007 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		CC0001 /* Gesso.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Gesso.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BB0008 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		BB0009 /* Keychain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Keychain.swift; sourceTree = "<group>"; };
+		BB0010 /* PKCE.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PKCE.swift; sourceTree = "<group>"; };
+		BB0011 /* GitHubAuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitHubAuthManager.swift; sourceTree = "<group>"; };
+		BB0012 /* ClaudeAuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudeAuthManager.swift; sourceTree = "<group>"; };
+		BB0013 /* ConnectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectView.swift; sourceTree = "<group>"; };
+		BB0014 /* GitHubRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitHubRepository.swift; sourceTree = "<group>"; };
+		BB0015 /* GitHubReposService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitHubReposService.swift; sourceTree = "<group>"; };
+		BB0016 /* RepoSelectionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoSelectionStore.swift; sourceTree = "<group>"; };
+		BB0017 /* RepoPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoPickerView.swift; sourceTree = "<group>"; };
+		BB0018 /* ToolMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolMode.swift; sourceTree = "<group>"; };
+		BB0019 /* WebViewStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewStore.swift; sourceTree = "<group>"; };
+		BB0020 /* WebViewRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewRepresentable.swift; sourceTree = "<group>"; };
+		BB0021 /* FloatingToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingToolbar.swift; sourceTree = "<group>"; };
+		BB0022 /* DrawingCanvas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawingCanvas.swift; sourceTree = "<group>"; };
+		BB0023 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
+		BB0024 /* ClaudeAPIKeySheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudeAPIKeySheet.swift; sourceTree = "<group>"; };
+		BB0025 /* AnnotationStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationStyle.swift; sourceTree = "<group>"; };
+		BB0026 /* HandwritingRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HandwritingRecognizer.swift; sourceTree = "<group>"; };
+		BB0027 /* AnnotationCompositor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationCompositor.swift; sourceTree = "<group>"; };
+		BB0028 /* GitHubRepoFileService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitHubRepoFileService.swift; sourceTree = "<group>"; };
+		BB0029 /* ClaudeAgentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudeAgentService.swift; sourceTree = "<group>"; };
+		BB0030 /* ChatMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessage.swift; sourceTree = "<group>"; };
+		BB0031 /* ConversationStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationStore.swift; sourceTree = "<group>"; };
+		BB0032 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
+		BB0033 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -50,10 +95,33 @@
 			isa = PBXGroup;
 			children = (
 				BB0001 /* GessoApp.swift */,
-				BB0002 /* ContentView.swift */,
-				BB0005 /* AnnotationView.swift */,
-				BB0006 /* CanvasView.swift */,
 				BB0007 /* SettingsView.swift */,
+				BB0009 /* Keychain.swift */,
+				BB0010 /* PKCE.swift */,
+				BB0011 /* GitHubAuthManager.swift */,
+				BB0012 /* ClaudeAuthManager.swift */,
+				BB0013 /* ConnectView.swift */,
+				BB0014 /* GitHubRepository.swift */,
+				BB0015 /* GitHubReposService.swift */,
+				BB0016 /* RepoSelectionStore.swift */,
+				BB0017 /* RepoPickerView.swift */,
+				BB0018 /* ToolMode.swift */,
+				BB0019 /* WebViewStore.swift */,
+				BB0020 /* WebViewRepresentable.swift */,
+				BB0021 /* FloatingToolbar.swift */,
+				BB0022 /* DrawingCanvas.swift */,
+				BB0023 /* MainView.swift */,
+				BB0024 /* ClaudeAPIKeySheet.swift */,
+				BB0025 /* AnnotationStyle.swift */,
+				BB0026 /* HandwritingRecognizer.swift */,
+				BB0027 /* AnnotationCompositor.swift */,
+				BB0028 /* GitHubRepoFileService.swift */,
+				BB0029 /* ClaudeAgentService.swift */,
+				BB0030 /* ChatMessage.swift */,
+				BB0031 /* ConversationStore.swift */,
+				BB0032 /* ChatView.swift */,
+				BB0033 /* Theme.swift */,
+				BB0008 /* Info.plist */,
 				BB0003 /* Assets.xcassets */,
 				EE0004 /* Preview Content */,
 			);
@@ -146,11 +214,33 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AA0002 /* ContentView.swift in Sources */,
 				AA0001 /* GessoApp.swift in Sources */,
-				AA0005 /* AnnotationView.swift in Sources */,
-				AA0006 /* CanvasView.swift in Sources */,
 				AA0007 /* SettingsView.swift in Sources */,
+				AA0008 /* Keychain.swift in Sources */,
+				AA0009 /* PKCE.swift in Sources */,
+				AA0010 /* GitHubAuthManager.swift in Sources */,
+				AA0011 /* ClaudeAuthManager.swift in Sources */,
+				AA0012 /* ConnectView.swift in Sources */,
+				AA0013 /* GitHubRepository.swift in Sources */,
+				AA0014 /* GitHubReposService.swift in Sources */,
+				AA0015 /* RepoSelectionStore.swift in Sources */,
+				AA0016 /* RepoPickerView.swift in Sources */,
+				AA0017 /* ToolMode.swift in Sources */,
+				AA0018 /* WebViewStore.swift in Sources */,
+				AA0019 /* WebViewRepresentable.swift in Sources */,
+				AA0020 /* FloatingToolbar.swift in Sources */,
+				AA0021 /* DrawingCanvas.swift in Sources */,
+				AA0022 /* MainView.swift in Sources */,
+				AA0023 /* ClaudeAPIKeySheet.swift in Sources */,
+				AA0024 /* AnnotationStyle.swift in Sources */,
+				AA0025 /* HandwritingRecognizer.swift in Sources */,
+				AA0026 /* AnnotationCompositor.swift in Sources */,
+				AA0027 /* GitHubRepoFileService.swift in Sources */,
+				AA0028 /* ClaudeAgentService.swift in Sources */,
+				AA0029 /* ChatMessage.swift in Sources */,
+				AA0030 /* ConversationStore.swift in Sources */,
+				AA0031 /* ChatView.swift in Sources */,
+				AA0032 /* Theme.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -286,6 +376,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"Gesso/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Gesso/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -317,6 +408,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"Gesso/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Gesso/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
