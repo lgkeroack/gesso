@@ -51,19 +51,19 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
           mkdir -p build
-          cat > build/ExportOptions.plist <<EOF
+          cat <<EOF | sed 's/^[[:space:]]*//' > build/ExportOptions.plist
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
           <dict>
-            <key>method</key>
-            <string>app-store</string>
-            <key>teamID</key>
-            <string>$APPLE_TEAM_ID</string>
-            <key>signingStyle</key>
-            <string>automatic</string>
-            <key>uploadSymbols</key>
-            <true/>
+          <key>method</key>
+          <string>app-store-connect</string>
+          <key>teamID</key>
+          <string>$APPLE_TEAM_ID</string>
+          <key>signingStyle</key>
+          <string>automatic</string>
+          <key>uploadSymbols</key>
+          <true/>
           </dict>
           </plist>
           EOF
