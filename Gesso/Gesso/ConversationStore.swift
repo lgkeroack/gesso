@@ -66,10 +66,10 @@ final class ConversationStore: ObservableObject {
         isWaitingForClaude = true
         errorMessage = nil
         do {
-            let reply = try await agent.send(
+            let (reply, updatedHistory) = try await agent.send(
                 userText: userText,
                 image: image,
-                history: &apiHistory,
+                history: apiHistory,
                 onActivity: { [weak self] activity in
                     Task { @MainActor in
                         self?.displayMessages.append(ChatMessage(role: .activity, text: activity, image: nil))
@@ -80,6 +80,7 @@ final class ConversationStore: ObservableObject {
                     return await self.presentQuestion(question, options: options)
                 }
             )
+            apiHistory = updatedHistory
             if !reply.isEmpty {
                 displayMessages.append(ChatMessage(role: .assistant, text: reply, image: nil))
             }

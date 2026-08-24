@@ -35,15 +35,18 @@ struct ClaudeAgentService {
     let githubToken: String
 
     /// Sends userText (with an optional image) as a new turn appended to `history`,
-    /// runs any tool calls Claude requests, and returns Claude's final text reply.
-    /// `history` is mutated in place so the caller can continue the same conversation.
+    /// runs any tool calls Claude requests, and returns Claude's final text reply
+    /// along with the updated history so the caller can continue the conversation.
+    /// (Takes history by value and returns it, rather than `inout`, since an
+    /// actor-isolated var can't be held `inout` across an `async` suspension.)
     func send(
         userText: String,
         image: UIImage?,
-        history: inout [[String: Any]],
+        history initialHistory: [[String: Any]],
         onActivity: @escaping (String) -> Void,
         onQuestion: @escaping (_ question: String, _ options: [String]) async -> String
-    ) async throws -> String {
+    ) async throws -> (reply: String, history: [[String: Any]]) {
+        var history = initialHistory
         var userContent: [[String: Any]] = []
         if let image, let jpeg = image.jpegData(compressionQuality: 0.7) {
             userContent.append([
@@ -98,9 +101,10 @@ struct ClaudeAgentService {
                 continue
             }
 
-            return contentBlocks
+            let reply = contentBlocks
                 .compactMap { $0["type"] as? String == "text" ? $0["text"] as? String : nil }
                 .joined(separator: "\n")
+            return (reply, history)
         }
     }
 
