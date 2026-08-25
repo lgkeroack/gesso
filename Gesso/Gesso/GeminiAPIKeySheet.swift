@@ -24,7 +24,7 @@ struct GeminiAPIKeySheet: View {
                 } header: {
                     Text("Gemini API Key")
                 } footer: {
-                    Text("Generate a free key at aistudio.google.com/apikey and paste it here. It's stored in this device's Keychain and never leaves the device except in requests to Google's API.")
+                    Text("Generate a free key at [aistudio.google.com/apikey](https://aistudio.google.com/apikey) and paste it here. It's stored in this device's Keychain and never leaves the device except in requests to Google's API.")
                 }
 
                 if let error = geminiAuth.errorMessage {

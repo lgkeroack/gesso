@@ -14,6 +14,10 @@ import SwiftUI
 enum AppTheme {
     static let background = Color(red: 0.96, green: 0.96, blue: 0.97)
     static let surface = Color.white
+    /// Deliberately darker than `background` -- for bars that sit directly
+    /// above content that can itself be blank white (e.g. an unloaded
+    /// WebView), where `background` alone reads as indistinguishable white.
+    static let chrome = Color(red: 0.90, green: 0.90, blue: 0.92)
     static let ink = Color(red: 0.11, green: 0.11, blue: 0.12)
     static let accent = Color(red: 0.15, green: 0.42, blue: 0.86)
     static let success = Color(red: 0.16, green: 0.55, blue: 0.32)

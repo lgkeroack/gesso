@@ -23,7 +23,7 @@ struct VercelAPIKeySheet: View {
                 } header: {
                     Text("Vercel Access Token")
                 } footer: {
-                    Text("Generate a token at vercel.com/account/tokens and paste it here. It's stored in this device's Keychain and never leaves the device except in requests to Vercel's API.")
+                    Text("Generate a token at [vercel.com/account/tokens](https://vercel.com/account/tokens) and paste it here. It's stored in this device's Keychain and never leaves the device except in requests to Vercel's API.")
                 }
 
                 if let error = vercelAuth.errorMessage {

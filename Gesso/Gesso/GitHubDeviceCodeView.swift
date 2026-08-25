@@ -39,9 +39,14 @@ struct GitHubDeviceCodeView: View {
             .padding(.vertical, 4)
 
             if let verificationURI = githubAuth.verificationURI {
-                Text(verificationURI)
-                    .font(.caption)
-                    .foregroundColor(AppTheme.ink.opacity(0.6))
+                if let url = URL(string: verificationURI) {
+                    Link(verificationURI, destination: url)
+                        .font(.caption)
+                } else {
+                    Text(verificationURI)
+                        .font(.caption)
+                        .foregroundColor(AppTheme.ink.opacity(0.6))
+                }
             }
 
             Button("Open GitHub to Enter Code") {

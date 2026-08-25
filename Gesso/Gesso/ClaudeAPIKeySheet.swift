@@ -24,7 +24,7 @@ struct ClaudeAPIKeySheet: View {
                 } header: {
                     Text("Anthropic API Key")
                 } footer: {
-                    Text("Generate a key at console.anthropic.com and paste it here. It's stored in this device's Keychain and never leaves the device except in requests to Anthropic's API.")
+                    Text("Generate a key at [console.anthropic.com](https://console.anthropic.com) and paste it here. It's stored in this device's Keychain and never leaves the device except in requests to Anthropic's API.")
                 }
 
                 if let error = claudeAuth.errorMessage {

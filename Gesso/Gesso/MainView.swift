@@ -124,8 +124,9 @@ struct MainView: View {
             }
         }
         .padding(8)
-        .background(AppTheme.background)
-        .overlay(Rectangle().frame(height: 1).foregroundColor(AppTheme.ink.opacity(0.1)), alignment: .bottom)
+        .background(AppTheme.chrome)
+        .overlay(Rectangle().frame(height: 1).foregroundColor(AppTheme.ink.opacity(0.15)), alignment: .bottom)
+        .shadow(color: AppTheme.ink.opacity(0.12), radius: 4, x: 0, y: 2)
     }
 
     private var processingOverlay: some View {
