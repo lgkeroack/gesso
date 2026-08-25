@@ -36,6 +36,9 @@
 		AA0031 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0032 /* ChatView.swift */; };
 		AA0032 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0033 /* Theme.swift */; };
 		AA0033 /* GitHubDeviceCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0034 /* GitHubDeviceCodeView.swift */; };
+		AA0034 /* VercelAuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0035 /* VercelAuthManager.swift */; };
+		AA0035 /* VercelAPIKeySheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0036 /* VercelAPIKeySheet.swift */; };
+		AA0036 /* VercelDeploymentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0037 /* VercelDeploymentService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -70,6 +73,9 @@
 		BB0032 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
 		BB0033 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		BB0034 /* GitHubDeviceCodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitHubDeviceCodeView.swift; sourceTree = "<group>"; };
+		BB0035 /* VercelAuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VercelAuthManager.swift; sourceTree = "<group>"; };
+		BB0036 /* VercelAPIKeySheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VercelAPIKeySheet.swift; sourceTree = "<group>"; };
+		BB0037 /* VercelDeploymentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VercelDeploymentService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -121,6 +127,9 @@
 				BB0032 /* ChatView.swift */,
 				BB0033 /* Theme.swift */,
 				BB0034 /* GitHubDeviceCodeView.swift */,
+				BB0035 /* VercelAuthManager.swift */,
+				BB0036 /* VercelAPIKeySheet.swift */,
+				BB0037 /* VercelDeploymentService.swift */,
 				BB0008 /* Info.plist */,
 				BB0003 /* Assets.xcassets */,
 				EE0004 /* Preview Content */,
@@ -241,6 +250,9 @@
 				AA0031 /* ChatView.swift in Sources */,
 				AA0032 /* Theme.swift in Sources */,
 				AA0033 /* GitHubDeviceCodeView.swift in Sources */,
+				AA0034 /* VercelAuthManager.swift in Sources */,
+				AA0035 /* VercelAPIKeySheet.swift in Sources */,
+				AA0036 /* VercelDeploymentService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

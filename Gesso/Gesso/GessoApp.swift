@@ -11,6 +11,7 @@ import SwiftUI
 struct GessoApp: App {
     @StateObject private var githubAuth = GitHubAuthManager()
     @StateObject private var claudeAuth = ClaudeAuthManager()
+    @StateObject private var vercelAuth = VercelAuthManager()
     @StateObject private var repoStore = RepoSelectionStore()
 
     var body: some Scene {
@@ -21,7 +22,7 @@ struct GessoApp: App {
                 } else if repoStore.selectedRepo == nil {
                     RepoPickerView(githubAuth: githubAuth, repoStore: repoStore)
                 } else {
-                    MainView(repoStore: repoStore, githubAuth: githubAuth, claudeAuth: claudeAuth)
+                    MainView(repoStore: repoStore, githubAuth: githubAuth, claudeAuth: claudeAuth, vercelAuth: vercelAuth)
                 }
             }
             .tint(BaroqueTheme.gold)

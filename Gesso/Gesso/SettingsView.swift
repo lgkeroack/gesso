@@ -12,10 +12,12 @@ import SwiftUI
 struct SettingsView: View {
     @ObservedObject var githubAuth: GitHubAuthManager
     @ObservedObject var claudeAuth: ClaudeAuthManager
+    @ObservedObject var vercelAuth: VercelAuthManager
     @ObservedObject var repoStore: RepoSelectionStore
     @Environment(\.dismiss) private var dismiss
 
     @State private var showingAPIKeySheet = false
+    @State private var showingVercelTokenSheet = false
 
     var body: some View {
         NavigationView {
@@ -63,6 +65,27 @@ struct SettingsView: View {
                 }
                 .listRowBackground(BaroqueTheme.cream)
 
+                if githubAuth.isConnected {
+                    Section {
+                        connectionRow(isConnected: vercelAuth.isConnected)
+                        if let error = vercelAuth.errorMessage {
+                            Text(error).font(.caption).foregroundColor(BaroqueTheme.burgundy)
+                        }
+                        if vercelAuth.isConnected {
+                            Button("Disconnect", role: .destructive) { vercelAuth.disconnect() }
+                                .buttonStyle(.ornate(BaroqueTheme.burgundy))
+                        } else {
+                            Button("Connect") { showingVercelTokenSheet = true }
+                                .buttonStyle(.ornate(BaroqueTheme.sapphire))
+                        }
+                    } header: {
+                        Text("Vercel (optional)").font(.baroqueHeadline).foregroundColor(BaroqueTheme.gold)
+                    } footer: {
+                        Text("Lets Gesso find your linked Vercel project's live deployment URL for the current repo.")
+                    }
+                    .listRowBackground(BaroqueTheme.cream)
+                }
+
                 Section {
                     if let repo = repoStore.selectedRepo {
                         Text(repo.fullName).foregroundColor(BaroqueTheme.ink)
@@ -92,6 +115,9 @@ struct SettingsView: View {
         .sheet(isPresented: $showingAPIKeySheet) {
             ClaudeAPIKeySheet(claudeAuth: claudeAuth, isPresented: $showingAPIKeySheet)
         }
+        .sheet(isPresented: $showingVercelTokenSheet) {
+            VercelAPIKeySheet(vercelAuth: vercelAuth, isPresented: $showingVercelTokenSheet)
+        }
     }
 
     private func connectionRow(isConnected: Bool) -> some View {
@@ -106,5 +132,10 @@ struct SettingsView: View {
 }
 
 #Preview {
-    SettingsView(githubAuth: GitHubAuthManager(), claudeAuth: ClaudeAuthManager(), repoStore: RepoSelectionStore())
+    SettingsView(
+        githubAuth: GitHubAuthManager(),
+        claudeAuth: ClaudeAuthManager(),
+        vercelAuth: VercelAuthManager(),
+        repoStore: RepoSelectionStore()
+    )
 }

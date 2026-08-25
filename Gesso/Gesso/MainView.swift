@@ -18,9 +18,12 @@ struct MainView: View {
     @ObservedObject var repoStore: RepoSelectionStore
     @ObservedObject var githubAuth: GitHubAuthManager
     @ObservedObject var claudeAuth: ClaudeAuthManager
+    @ObservedObject var vercelAuth: VercelAuthManager
 
     @StateObject private var webViewStore = WebViewStore()
     @State private var urlText = ""
+    @State private var isLoadingVercelDeployment = false
+    @State private var vercelError: String?
     @State private var activeTool: ToolMode = .none
     @State private var annotationStyle: AnnotationStyle = .pen
     @State private var strokes: [Stroke] = []
@@ -57,7 +60,7 @@ struct MainView: View {
             }
         }
         .sheet(isPresented: $showingSettings) {
-            SettingsView(githubAuth: githubAuth, claudeAuth: claudeAuth, repoStore: repoStore)
+            SettingsView(githubAuth: githubAuth, claudeAuth: claudeAuth, vercelAuth: vercelAuth, repoStore: repoStore)
         }
         .sheet(isPresented: $showingChat) {
             if let repo = repoStore.selectedRepo, let token = githubAuth.accessToken, let apiKey = claudeAuth.apiKey {
@@ -77,15 +80,37 @@ struct MainView: View {
     }
 
     private var addressBar: some View {
-        HStack {
-            TextField("Enter URL", text: $urlText)
-                .textFieldStyle(.roundedBorder)
-                .keyboardType(.URL)
-                .textInputAutocapitalization(.never)
-                .autocorrectionDisabled()
-                .onSubmit(loadURL)
-            Button("Go", action: loadURL)
-                .buttonStyle(.ornate(BaroqueTheme.sapphire))
+        VStack(spacing: 4) {
+            HStack {
+                TextField("Enter URL", text: $urlText)
+                    .textFieldStyle(.roundedBorder)
+                    .keyboardType(.URL)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                    .onSubmit(loadURL)
+
+                if vercelAuth.isConnected {
+                    Button {
+                        Task { await loadVercelDeployment() }
+                    } label: {
+                        if isLoadingVercelDeployment {
+                            ProgressView()
+                        } else {
+                            Image(systemName: "triangle.fill")
+                        }
+                    }
+                    .buttonStyle(.ornate(BaroqueTheme.amethyst))
+                    .disabled(isLoadingVercelDeployment)
+                }
+
+                Button("Go", action: loadURL)
+                    .buttonStyle(.ornate(BaroqueTheme.sapphire))
+            }
+            if let vercelError {
+                Text(vercelError)
+                    .font(.caption)
+                    .foregroundColor(BaroqueTheme.burgundy)
+            }
         }
         .padding(8)
         .background(BaroqueTheme.backgroundGradient)
@@ -111,6 +136,23 @@ struct MainView: View {
                     .strokeBorder(BaroqueTheme.gold, lineWidth: 1.5)
             )
             .shadow(color: BaroqueTheme.ink.opacity(0.3), radius: 12, x: 0, y: 6)
+        }
+    }
+
+    private func loadVercelDeployment() async {
+        guard let repo = repoStore.selectedRepo, let token = vercelAuth.accessToken else { return }
+        vercelError = nil
+        isLoadingVercelDeployment = true
+        defer { isLoadingVercelDeployment = false }
+        do {
+            let project = try await VercelDeploymentService.findProject(forRepo: repo, token: token)
+            let url = try await VercelDeploymentService.latestDeploymentURL(
+                project: project, branch: repo.defaultBranch, token: token
+            )
+            urlText = url.absoluteString
+            webViewStore.webView.load(URLRequest(url: url))
+        } catch {
+            vercelError = error.localizedDescription
         }
     }
 
@@ -191,5 +233,10 @@ struct MainView: View {
 }
 
 #Preview {
-    MainView(repoStore: RepoSelectionStore(), githubAuth: GitHubAuthManager(), claudeAuth: ClaudeAuthManager())
+    MainView(
+        repoStore: RepoSelectionStore(),
+        githubAuth: GitHubAuthManager(),
+        claudeAuth: ClaudeAuthManager(),
+        vercelAuth: VercelAuthManager()
+    )
 }
