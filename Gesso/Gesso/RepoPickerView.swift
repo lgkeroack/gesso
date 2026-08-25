@@ -30,15 +30,15 @@ struct RepoPickerView: View {
                 } else if let errorMessage {
                     VStack(spacing: 12) {
                         Text(errorMessage)
-                            .foregroundColor(BaroqueTheme.burgundy)
+                            .foregroundColor(AppTheme.danger)
                             .multilineTextAlignment(.center)
                             .padding()
                         Button("Retry") { Task { await loadRepos() } }
-                            .buttonStyle(.ornate(BaroqueTheme.sapphire))
+                            .buttonStyle(.flat(AppTheme.accent))
                     }
                 } else if repos.isEmpty {
                     Text("No repositories found. Make sure the Gesso GitHub App has access to at least one repository.")
-                        .foregroundColor(BaroqueTheme.ink.opacity(0.6))
+                        .foregroundColor(AppTheme.ink.opacity(0.6))
                         .multilineTextAlignment(.center)
                         .padding()
                 } else {
@@ -47,21 +47,21 @@ struct RepoPickerView: View {
                             repoStore.select(repo)
                         } label: {
                             VStack(alignment: .leading, spacing: 4) {
-                                Text(repo.fullName).font(.baroqueHeadline)
+                                Text(repo.fullName).font(.sectionHeadline)
                                 Text(repo.isPrivate ? "Private" : "Public")
                                     .font(.caption)
-                                    .foregroundColor(BaroqueTheme.gold)
+                                    .foregroundColor(AppTheme.ink.opacity(0.5))
                             }
                         }
-                        .foregroundColor(BaroqueTheme.ink)
-                        .listRowBackground(BaroqueTheme.cream)
+                        .foregroundColor(AppTheme.ink)
+                        .listRowBackground(AppTheme.surface)
                     }
                     .scrollContentBackground(.hidden)
-                    .background(BaroqueTheme.backgroundGradient)
+                    .background(AppTheme.background)
                     .searchable(text: $searchText, prompt: "Search repositories")
                 }
             }
-            .background(BaroqueTheme.backgroundGradient.ignoresSafeArea())
+            .background(AppTheme.background.ignoresSafeArea())
             .navigationTitle("Pick a Repository")
         }
         .task {

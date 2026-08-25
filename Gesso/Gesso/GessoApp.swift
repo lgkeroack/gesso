@@ -34,7 +34,7 @@ struct GessoApp: App {
                     )
                 }
             }
-            .tint(BaroqueTheme.gold)
+            .tint(AppTheme.accent)
         }
     }
 }

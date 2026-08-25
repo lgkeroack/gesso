@@ -33,59 +33,59 @@ struct SettingsView: View {
                     } else {
                         connectionRow(isConnected: githubAuth.isConnected)
                         if let error = githubAuth.errorMessage {
-                            Text(error).font(.caption).foregroundColor(BaroqueTheme.burgundy)
+                            Text(error).font(.caption).foregroundColor(AppTheme.danger)
                         }
                         if githubAuth.isConnected {
                             Button("Disconnect", role: .destructive) {
                                 githubAuth.disconnect()
                                 repoStore.clear()
                             }
-                            .buttonStyle(.ornate(BaroqueTheme.burgundy))
+                            .buttonStyle(.flat(AppTheme.danger))
                         } else {
                             Button("Connect") { githubAuth.connect() }
-                                .buttonStyle(.ornate(BaroqueTheme.sapphire))
+                                .buttonStyle(.flat(AppTheme.accent))
                         }
                     }
                 } header: {
-                    Text("GitHub").font(.baroqueHeadline).foregroundColor(BaroqueTheme.gold)
+                    Text("GitHub").font(.sectionHeadline).foregroundColor(AppTheme.ink)
                 }
-                .listRowBackground(BaroqueTheme.cream)
+                .listRowBackground(AppTheme.surface)
 
                 Section {
                     connectionRow(isConnected: claudeAuth.isConnected)
                     if let error = claudeAuth.errorMessage {
-                        Text(error).font(.caption).foregroundColor(BaroqueTheme.burgundy)
+                        Text(error).font(.caption).foregroundColor(AppTheme.danger)
                     }
                     if claudeAuth.isConnected {
                         Button("Disconnect", role: .destructive) { claudeAuth.disconnect() }
-                            .buttonStyle(.ornate(BaroqueTheme.burgundy))
+                            .buttonStyle(.flat(AppTheme.danger))
                     } else {
                         Button("Connect") { showingAPIKeySheet = true }
-                            .buttonStyle(.ornate(BaroqueTheme.sapphire))
+                            .buttonStyle(.flat(AppTheme.accent))
                     }
                 } header: {
-                    Text("Claude").font(.baroqueHeadline).foregroundColor(BaroqueTheme.gold)
+                    Text("Claude").font(.sectionHeadline).foregroundColor(AppTheme.ink)
                 }
-                .listRowBackground(BaroqueTheme.cream)
+                .listRowBackground(AppTheme.surface)
 
                 Section {
                     connectionRow(isConnected: geminiAuth.isConnected)
                     if let error = geminiAuth.errorMessage {
-                        Text(error).font(.caption).foregroundColor(BaroqueTheme.burgundy)
+                        Text(error).font(.caption).foregroundColor(AppTheme.danger)
                     }
                     if geminiAuth.isConnected {
                         Button("Disconnect", role: .destructive) { geminiAuth.disconnect() }
-                            .buttonStyle(.ornate(BaroqueTheme.burgundy))
+                            .buttonStyle(.flat(AppTheme.danger))
                     } else {
                         Button("Connect") { showingGeminiKeySheet = true }
-                            .buttonStyle(.ornate(BaroqueTheme.sapphire))
+                            .buttonStyle(.flat(AppTheme.accent))
                     }
                 } header: {
-                    Text("Gemini").font(.baroqueHeadline).foregroundColor(BaroqueTheme.gold)
+                    Text("Gemini").font(.sectionHeadline).foregroundColor(AppTheme.ink)
                 } footer: {
                     Text("Google's Gemini API has a free tier -- an alternative to Claude for the same read/edit/commit agent.")
                 }
-                .listRowBackground(BaroqueTheme.cream)
+                .listRowBackground(AppTheme.surface)
 
                 if claudeAuth.isConnected && geminiAuth.isConnected {
                     Section {
@@ -95,53 +95,53 @@ struct SettingsView: View {
                         }
                         .pickerStyle(.segmented)
                     } header: {
-                        Text("AI Provider").font(.baroqueHeadline).foregroundColor(BaroqueTheme.gold)
+                        Text("AI Provider").font(.sectionHeadline).foregroundColor(AppTheme.ink)
                     } footer: {
                         Text("Both are connected -- pick which one Gesso sends your annotations to.")
                     }
-                    .listRowBackground(BaroqueTheme.cream)
+                    .listRowBackground(AppTheme.surface)
                 }
 
                 if githubAuth.isConnected {
                     Section {
                         connectionRow(isConnected: vercelAuth.isConnected)
                         if let error = vercelAuth.errorMessage {
-                            Text(error).font(.caption).foregroundColor(BaroqueTheme.burgundy)
+                            Text(error).font(.caption).foregroundColor(AppTheme.danger)
                         }
                         if vercelAuth.isConnected {
                             Button("Disconnect", role: .destructive) { vercelAuth.disconnect() }
-                                .buttonStyle(.ornate(BaroqueTheme.burgundy))
+                                .buttonStyle(.flat(AppTheme.danger))
                         } else {
                             Button("Connect") { showingVercelTokenSheet = true }
-                                .buttonStyle(.ornate(BaroqueTheme.sapphire))
+                                .buttonStyle(.flat(AppTheme.accent))
                         }
                     } header: {
-                        Text("Vercel (optional)").font(.baroqueHeadline).foregroundColor(BaroqueTheme.gold)
+                        Text("Vercel (optional)").font(.sectionHeadline).foregroundColor(AppTheme.ink)
                     } footer: {
                         Text("Lets Gesso find your linked Vercel project's live deployment URL for the current repo.")
                     }
-                    .listRowBackground(BaroqueTheme.cream)
+                    .listRowBackground(AppTheme.surface)
                 }
 
                 Section {
                     if let repo = repoStore.selectedRepo {
-                        Text(repo.fullName).foregroundColor(BaroqueTheme.ink)
+                        Text(repo.fullName).foregroundColor(AppTheme.ink)
                     } else {
-                        Text("None selected").foregroundColor(BaroqueTheme.ink.opacity(0.5))
+                        Text("None selected").foregroundColor(AppTheme.ink.opacity(0.5))
                     }
                     Button("Change Repository") {
                         repoStore.clear()
                         dismiss()
                     }
-                    .buttonStyle(.ornate(BaroqueTheme.amethyst))
+                    .buttonStyle(.flat(AppTheme.accent))
                     .disabled(!githubAuth.isConnected)
                 } header: {
-                    Text("Repository").font(.baroqueHeadline).foregroundColor(BaroqueTheme.gold)
+                    Text("Repository").font(.sectionHeadline).foregroundColor(AppTheme.ink)
                 }
-                .listRowBackground(BaroqueTheme.cream)
+                .listRowBackground(AppTheme.surface)
             }
             .scrollContentBackground(.hidden)
-            .background(BaroqueTheme.backgroundGradient.ignoresSafeArea())
+            .background(AppTheme.background.ignoresSafeArea())
             .navigationTitle("Connections")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -163,10 +163,10 @@ struct SettingsView: View {
     private func connectionRow(isConnected: Bool) -> some View {
         HStack {
             Text(isConnected ? "Connected" : "Not connected")
-                .foregroundColor(BaroqueTheme.ink)
+                .foregroundColor(AppTheme.ink)
             Spacer()
             Image(systemName: isConnected ? "checkmark.seal.fill" : "xmark.circle")
-                .foregroundColor(isConnected ? BaroqueTheme.emerald : BaroqueTheme.ink.opacity(0.4))
+                .foregroundColor(isConnected ? AppTheme.success : AppTheme.ink.opacity(0.4))
         }
     }
 }

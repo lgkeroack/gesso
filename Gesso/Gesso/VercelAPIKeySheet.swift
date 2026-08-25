@@ -27,7 +27,7 @@ struct VercelAPIKeySheet: View {
                 }
 
                 if let error = vercelAuth.errorMessage {
-                    Text(error).foregroundColor(BaroqueTheme.burgundy)
+                    Text(error).foregroundColor(AppTheme.danger)
                 }
             }
             .navigationTitle("Connect Vercel")

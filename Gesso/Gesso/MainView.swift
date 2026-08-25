@@ -110,22 +110,22 @@ struct MainView: View {
                             Image(systemName: "triangle.fill")
                         }
                     }
-                    .buttonStyle(.ornate(BaroqueTheme.amethyst))
+                    .buttonStyle(.flat(AppTheme.accent))
                     .disabled(isLoadingVercelDeployment)
                 }
 
                 Button("Go", action: loadURL)
-                    .buttonStyle(.ornate(BaroqueTheme.sapphire))
+                    .buttonStyle(.flat(AppTheme.accent))
             }
             if let vercelError {
                 Text(vercelError)
                     .font(.caption)
-                    .foregroundColor(BaroqueTheme.burgundy)
+                    .foregroundColor(AppTheme.danger)
             }
         }
         .padding(8)
-        .background(BaroqueTheme.backgroundGradient)
-        .overlay(Rectangle().frame(height: 1).foregroundColor(BaroqueTheme.gold.opacity(0.5)), alignment: .bottom)
+        .background(AppTheme.background)
+        .overlay(Rectangle().frame(height: 1).foregroundColor(AppTheme.ink.opacity(0.1)), alignment: .bottom)
     }
 
     private var processingOverlay: some View {
@@ -134,19 +134,15 @@ struct MainView: View {
             VStack(spacing: 16) {
                 ProgressView()
                     .scaleEffect(1.4)
-                    .tint(BaroqueTheme.gold)
+                    .tint(AppTheme.accent)
                 Text("Processing annotations…")
-                    .font(.baroqueHeadline)
-                    .foregroundColor(BaroqueTheme.ink.opacity(0.7))
+                    .font(.sectionHeadline)
+                    .foregroundColor(AppTheme.ink.opacity(0.7))
             }
             .padding(24)
-            .background(BaroqueTheme.backgroundGradient)
+            .background(AppTheme.surface)
             .clipShape(RoundedRectangle(cornerRadius: 16))
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .strokeBorder(BaroqueTheme.gold, lineWidth: 1.5)
-            )
-            .shadow(color: BaroqueTheme.ink.opacity(0.3), radius: 12, x: 0, y: 6)
+            .shadow(color: AppTheme.ink.opacity(0.2), radius: 12, x: 0, y: 6)
         }
     }
 

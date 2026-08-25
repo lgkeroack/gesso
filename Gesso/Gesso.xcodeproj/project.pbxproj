@@ -44,6 +44,7 @@
 		AA0039 /* GeminiAPIKeySheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0040 /* GeminiAPIKeySheet.swift */; };
 		AA0040 /* GeminiAgentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0041 /* GeminiAgentService.swift */; };
 		AA0041 /* AIProviderStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0042 /* AIProviderStore.swift */; };
+		AA0042 /* StardosStencil-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BB0043 /* StardosStencil-Regular.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -86,6 +87,7 @@
 		BB0040 /* GeminiAPIKeySheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeminiAPIKeySheet.swift; sourceTree = "<group>"; };
 		BB0041 /* GeminiAgentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeminiAgentService.swift; sourceTree = "<group>"; };
 		BB0042 /* AIProviderStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIProviderStore.swift; sourceTree = "<group>"; };
+		BB0043 /* StardosStencil-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "StardosStencil-Regular.ttf"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -145,6 +147,7 @@
 				BB0040 /* GeminiAPIKeySheet.swift */,
 				BB0041 /* GeminiAgentService.swift */,
 				BB0042 /* AIProviderStore.swift */,
+				BB0043 /* StardosStencil-Regular.ttf */,
 				BB0008 /* Info.plist */,
 				BB0003 /* Assets.xcassets */,
 				EE0004 /* Preview Content */,
@@ -228,6 +231,7 @@
 			files = (
 				AA0004 /* Preview Assets.xcassets in Resources */,
 				AA0003 /* Assets.xcassets in Resources */,
+				AA0042 /* StardosStencil-Regular.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

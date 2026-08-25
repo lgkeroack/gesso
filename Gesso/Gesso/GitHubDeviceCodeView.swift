@@ -18,18 +18,18 @@ struct GitHubDeviceCodeView: View {
     var body: some View {
         VStack(spacing: 12) {
             Text("Enter this code on GitHub")
-                .font(.baroqueHeadline)
-                .foregroundColor(BaroqueTheme.ink)
+                .font(.sectionHeadline)
+                .foregroundColor(AppTheme.ink)
 
             HStack(spacing: 10) {
                 Text(githubAuth.userCode ?? "")
                     .font(.system(size: 30, weight: .bold, design: .monospaced))
                     .tracking(4)
-                    .foregroundColor(BaroqueTheme.gold)
+                    .foregroundColor(AppTheme.accent)
 
                 Button(action: copyCode) {
                     Image(systemName: didCopy ? "checkmark" : "doc.on.doc")
-                        .foregroundColor(didCopy ? BaroqueTheme.emerald : BaroqueTheme.sapphire)
+                        .foregroundColor(didCopy ? AppTheme.success : AppTheme.accent)
                         .font(.title3)
                 }
                 .buttonStyle(.plain)
@@ -41,22 +41,22 @@ struct GitHubDeviceCodeView: View {
             if let verificationURI = githubAuth.verificationURI {
                 Text(verificationURI)
                     .font(.caption)
-                    .foregroundColor(BaroqueTheme.ink.opacity(0.6))
+                    .foregroundColor(AppTheme.ink.opacity(0.6))
             }
 
             Button("Open GitHub to Enter Code") {
                 githubAuth.openVerificationURL()
             }
-            .buttonStyle(.ornate(BaroqueTheme.sapphire))
+            .buttonStyle(.flat(AppTheme.accent))
 
             Button("Cancel") {
                 githubAuth.cancel()
             }
             .font(.footnote)
-            .foregroundColor(BaroqueTheme.burgundy)
+            .foregroundColor(AppTheme.danger)
         }
         .padding()
-        .ornateCard(tint: BaroqueTheme.gold)
+        .card()
     }
 
     private func copyCode() {

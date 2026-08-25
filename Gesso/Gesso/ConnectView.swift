@@ -21,19 +21,21 @@ struct ConnectView: View {
 
     var body: some View {
         ZStack {
-            BaroqueTheme.backgroundGradient.ignoresSafeArea()
+            AppTheme.background.ignoresSafeArea()
 
             VStack(spacing: 32) {
                 VStack(spacing: 10) {
                     Image(systemName: "paintbrush.pointed.fill")
                         .font(.system(size: 44))
-                        .foregroundColor(BaroqueTheme.gold)
+                        .foregroundColor(AppTheme.accent)
 
-                    FlourishedTitle(text: "Connect Gesso")
+                    Text("Connect Gesso")
+                        .font(.displayTitle())
+                        .foregroundColor(AppTheme.ink)
 
                     Text("Connect GitHub and an AI provider so Gesso can read and change your repos.")
                         .font(.body)
-                        .foregroundColor(BaroqueTheme.ink.opacity(0.7))
+                        .foregroundColor(AppTheme.ink.opacity(0.7))
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 24)
                 }
@@ -55,12 +57,12 @@ struct ConnectView: View {
                     if let error = githubAuth.errorMessage {
                         Text(error)
                             .font(.caption)
-                            .foregroundColor(BaroqueTheme.burgundy)
+                            .foregroundColor(AppTheme.danger)
                     }
 
                     Text("AI Provider -- connect at least one")
                         .font(.caption)
-                        .foregroundColor(BaroqueTheme.ink.opacity(0.5))
+                        .foregroundColor(AppTheme.ink.opacity(0.5))
                         .frame(maxWidth: .infinity, alignment: .leading)
 
                     connectionRow(
@@ -74,7 +76,7 @@ struct ConnectView: View {
                     if let error = claudeAuth.errorMessage {
                         Text(error)
                             .font(.caption)
-                            .foregroundColor(BaroqueTheme.burgundy)
+                            .foregroundColor(AppTheme.danger)
                     }
 
                     connectionRow(
@@ -88,7 +90,7 @@ struct ConnectView: View {
                     if let error = geminiAuth.errorMessage {
                         Text(error)
                             .font(.caption)
-                            .foregroundColor(BaroqueTheme.burgundy)
+                            .foregroundColor(AppTheme.danger)
                     }
 
                     connectionRow(
@@ -102,7 +104,7 @@ struct ConnectView: View {
                     if let error = vercelAuth.errorMessage {
                         Text(error)
                             .font(.caption)
-                            .foregroundColor(BaroqueTheme.burgundy)
+                            .foregroundColor(AppTheme.danger)
                     }
                 }
                 .padding(.horizontal, 40)
@@ -133,28 +135,28 @@ struct ConnectView: View {
         HStack {
             Image(systemName: systemImage)
                 .font(.title2)
-                .foregroundColor(isConnected ? BaroqueTheme.emerald : BaroqueTheme.sapphire)
+                .foregroundColor(isConnected ? AppTheme.success : AppTheme.accent)
                 .frame(width: 32)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(title).font(.baroqueHeadline).foregroundColor(BaroqueTheme.ink)
-                Text(subtitle).font(.caption).foregroundColor(BaroqueTheme.ink.opacity(0.6))
+                Text(title).font(.sectionHeadline).foregroundColor(AppTheme.ink)
+                Text(subtitle).font(.caption).foregroundColor(AppTheme.ink.opacity(0.6))
             }
 
             Spacer()
 
             if isConnected {
                 Image(systemName: "checkmark.seal.fill")
-                    .foregroundColor(BaroqueTheme.emerald)
+                    .foregroundColor(AppTheme.success)
                     .font(.title2)
             } else if isBusy {
                 ProgressView()
             } else {
                 Button("Connect", action: action)
-                    .buttonStyle(.ornate(BaroqueTheme.sapphire))
+                    .buttonStyle(.flat(AppTheme.accent))
             }
         }
-        .ornateCard(tint: isConnected ? BaroqueTheme.emerald : BaroqueTheme.gold)
+        .card()
     }
 }
 

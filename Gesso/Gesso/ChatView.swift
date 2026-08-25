@@ -23,11 +23,11 @@ struct ChatView: View {
         VStack(spacing: 0) {
             header
             messageList
-                .background(BaroqueTheme.backgroundGradient.ignoresSafeArea())
+                .background(AppTheme.background.ignoresSafeArea())
             if let error = conversation.errorMessage {
                 Text(error)
                     .font(.caption)
-                    .foregroundColor(BaroqueTheme.burgundy)
+                    .foregroundColor(AppTheme.danger)
                     .padding(.horizontal)
                     .padding(.top, 4)
             }
@@ -39,20 +39,20 @@ struct ChatView: View {
         HStack {
             Button(action: onBack) {
                 Label("Back", systemImage: "chevron.left")
-                    .foregroundColor(BaroqueTheme.sapphire)
+                    .foregroundColor(AppTheme.accent)
             }
             Spacer()
-            Text(providerName).font(.baroqueHeadline).foregroundColor(BaroqueTheme.gold)
+            Text(providerName).font(.sectionHeadline).foregroundColor(AppTheme.ink)
             Spacer()
             Button(action: onForward) {
                 Label("New", systemImage: "chevron.right")
                     .labelStyle(.trailingIcon)
-                    .foregroundColor(BaroqueTheme.emerald)
+                    .foregroundColor(AppTheme.success)
             }
         }
         .padding()
-        .background(BaroqueTheme.backgroundGradient)
-        .overlay(Rectangle().frame(height: 1).foregroundColor(BaroqueTheme.gold.opacity(0.5)), alignment: .bottom)
+        .background(AppTheme.surface)
+        .overlay(Rectangle().frame(height: 1).foregroundColor(AppTheme.ink.opacity(0.1)), alignment: .bottom)
     }
 
     private var messageList: some View {
@@ -91,35 +91,31 @@ struct ChatView: View {
                         .scaledToFit()
                         .frame(maxWidth: 220)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
-                        .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(BaroqueTheme.gold, lineWidth: 1))
                 }
                 Text(message.text)
                     .foregroundColor(.white)
-                    .ornateCard(
-                        tint: BaroqueTheme.gold,
-                        fillColors: [BaroqueTheme.sapphire, BaroqueTheme.sapphire.opacity(0.85)]
-                    )
+                    .card(fill: AppTheme.accent)
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
 
         case .assistant:
             Text(message.text)
-                .foregroundColor(BaroqueTheme.ink)
-                .ornateCard(tint: BaroqueTheme.gold)
+                .foregroundColor(AppTheme.ink)
+                .card()
                 .frame(maxWidth: .infinity, alignment: .leading)
 
         case .activity:
             Text(message.text)
                 .font(.caption)
                 .italic()
-                .foregroundColor(BaroqueTheme.amethyst)
+                .foregroundColor(AppTheme.ink.opacity(0.5))
                 .frame(maxWidth: .infinity, alignment: .leading)
 
         case .question:
             VStack(alignment: .leading, spacing: 8) {
                 Text(message.text)
-                    .foregroundColor(BaroqueTheme.ink)
-                    .ornateCard(tint: BaroqueTheme.emerald)
+                    .foregroundColor(AppTheme.ink)
+                    .card()
 
                 ForEach(message.options ?? [], id: \.self) { option in
                     Button {
@@ -133,7 +129,7 @@ struct ChatView: View {
                             }
                         }
                     }
-                    .buttonStyle(.ornate(message.selectedOption == option ? BaroqueTheme.emerald : BaroqueTheme.emerald.opacity(0.6)))
+                    .buttonStyle(.flat(message.selectedOption == option ? AppTheme.success : AppTheme.success.opacity(0.6)))
                     .disabled(message.selectedOption != nil)
                 }
             }
@@ -147,12 +143,12 @@ struct ChatView: View {
                 .textFieldStyle(.roundedBorder)
                 .onSubmit(sendFollowUp)
             Button("Send", action: sendFollowUp)
-                .buttonStyle(.ornate(BaroqueTheme.sapphire))
+                .buttonStyle(.flat(AppTheme.accent))
                 .disabled(followUpText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || conversation.isWaitingForClaude)
         }
         .padding()
-        .background(BaroqueTheme.backgroundGradient)
-        .overlay(Rectangle().frame(height: 1).foregroundColor(BaroqueTheme.gold.opacity(0.5)), alignment: .top)
+        .background(AppTheme.surface)
+        .overlay(Rectangle().frame(height: 1).foregroundColor(AppTheme.ink.opacity(0.1)), alignment: .top)
     }
 
     private func sendFollowUp() {

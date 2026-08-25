@@ -24,30 +24,15 @@ struct FloatingToolbar: View {
             gripHandle
 
             primaryToolButton
-            toolButton(systemImage: "eraser", isActive: activeTool == .erase, tint: BaroqueTheme.burgundy) {
+            toolButton(systemImage: "eraser", isActive: activeTool == .erase, tint: AppTheme.danger) {
                 activeTool = activeTool == .erase ? .none : .erase
             }
-            toolButton(systemImage: "gearshape", isActive: false, tint: BaroqueTheme.amethyst, action: onGear)
+            toolButton(systemImage: "gearshape", isActive: false, tint: AppTheme.accent, action: onGear)
         }
         .padding(10)
-        .background(
-            LinearGradient(
-                colors: [BaroqueTheme.cream, BaroqueTheme.creamDeep],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-        )
+        .background(AppTheme.surface)
         .clipShape(RoundedRectangle(cornerRadius: 16))
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .strokeBorder(BaroqueTheme.gold, lineWidth: 1.5)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 19)
-                .strokeBorder(BaroqueTheme.gold.opacity(0.35), lineWidth: 1)
-                .padding(-3)
-        )
-        .shadow(color: BaroqueTheme.ink.opacity(0.25), radius: 8, x: 0, y: 4)
+        .shadow(color: AppTheme.ink.opacity(0.2), radius: 8, x: 0, y: 4)
         .offset(x: accumulatedOffset.width + dragOffset.width, y: accumulatedOffset.height + dragOffset.height)
         .gesture(
             DragGesture()
@@ -72,7 +57,7 @@ struct FloatingToolbar: View {
         Button(action: onDone) {
             Text("Done")
                 .font(.subheadline.weight(.semibold))
-                .foregroundColor(BaroqueTheme.emerald)
+                .foregroundColor(AppTheme.success)
                 .padding(.horizontal, 8)
                 .frame(height: 36)
         }
@@ -85,9 +70,9 @@ struct FloatingToolbar: View {
         } label: {
             Image(systemName: annotationStyle == .highlighter ? "highlighter" : "pencil")
                 .font(.title3)
-                .foregroundColor(activeTool == .draw ? .white : BaroqueTheme.sapphire)
+                .foregroundColor(activeTool == .draw ? .white : AppTheme.accent)
                 .frame(width: 36, height: 36)
-                .background(activeTool == .draw ? BaroqueTheme.sapphire : Color.clear)
+                .background(activeTool == .draw ? AppTheme.accent : Color.clear)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)
@@ -126,7 +111,7 @@ struct FloatingToolbar: View {
                 }
             }
         }
-        .foregroundColor(BaroqueTheme.gold)
+        .foregroundColor(AppTheme.ink.opacity(0.3))
         .padding(.bottom, 2)
     }
 
