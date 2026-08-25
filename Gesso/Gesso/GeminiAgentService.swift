@@ -1,0 +1,243 @@
+//
+//  GeminiAgentService.swift
+//  Gesso
+//
+//  Drives the Gemini generateContent tool-use loop -- the Gemini equivalent
+//  of ClaudeAgentService. Gives Gemini tools to list/read/write files in the
+//  connected GitHub repo, executes those tool calls locally against
+//  GitHubRepoFileService, and keeps looping until Gemini produces a final
+//  text reply. Calls go straight from the device to
+//  generativelanguage.googleapis.com and api.github.com -- no backend.
+//
+//  `history` entries are Gemini `contents` objects: {"role": "user"/"model",
+//  "parts": [...]}. Parts carry text, inlineData (images), functionCall, or
+//  functionResponse.
+//
+
+import Foundation
+import UIKit
+
+enum GeminiAgentError: LocalizedError {
+    case requestFailed(String)
+    case tooManySteps
+
+    var errorDescription: String? {
+        switch self {
+        case .requestFailed(let message): return message
+        case .tooManySteps: return "Gemini took too many steps without finishing; stopped for safety."
+        }
+    }
+}
+
+struct GeminiAgentService: AgentService {
+    private static let model = "gemini-2.5-flash"
+    private static let generateURL = URL(
+        string: "https://generativelanguage.googleapis.com/v1beta/models/\(model):generateContent"
+    )!
+    private static let maxToolIterations = 12
+
+    let apiKey: String
+    let repo: GitHubRepository
+    let githubToken: String
+
+    func send(
+        userText: String,
+        image: UIImage?,
+        history initialHistory: [[String: Any]],
+        onActivity: @escaping (String) -> Void,
+        onQuestion: @escaping (_ question: String, _ options: [String]) async -> String
+    ) async throws -> (reply: String, history: [[String: Any]]) {
+        var history = initialHistory
+        var userParts: [[String: Any]] = []
+        if let image, let jpeg = image.jpegData(compressionQuality: 0.7) {
+            userParts.append([
+                "inlineData": [
+                    "mimeType": "image/jpeg",
+                    "data": jpeg.base64EncodedString()
+                ]
+            ])
+        }
+        userParts.append(["text": userText])
+        history.append(["role": "user", "parts": userParts])
+
+        var iterations = 0
+        while true {
+            iterations += 1
+            if iterations > Self.maxToolIterations {
+                throw GeminiAgentError.tooManySteps
+            }
+
+            let responseBody = try await callGenerateContent(history: history)
+            guard let candidates = responseBody["candidates"] as? [[String: Any]],
+                  let firstCandidate = candidates.first,
+                  let content = firstCandidate["content"] as? [String: Any],
+                  let parts = content["parts"] as? [[String: Any]] else {
+                throw GeminiAgentError.requestFailed("Unexpected response from Gemini.")
+            }
+            history.append(["role": "model", "parts": parts])
+
+            let functionCallParts = parts.filter { $0["functionCall"] != nil }
+            if !functionCallParts.isEmpty {
+                var responseParts: [[String: Any]] = []
+                for part in functionCallParts {
+                    guard let call = part["functionCall"] as? [String: Any],
+                          let name = call["name"] as? String else { continue }
+                    let input = call["args"] as? [String: Any] ?? [:]
+
+                    let result: String
+                    if name == "ask_clarifying_question" {
+                        let question = input["question"] as? String ?? "Gemini has a question."
+                        let options = input["options"] as? [String] ?? []
+                        result = await onQuestion(question, options)
+                    } else {
+                        onActivity(activityDescription(tool: name, input: input))
+                        result = await runTool(name: name, input: input)
+                    }
+
+                    responseParts.append([
+                        "functionResponse": [
+                            "name": name,
+                            "response": ["result": result]
+                        ]
+                    ])
+                }
+                history.append(["role": "user", "parts": responseParts])
+                continue
+            }
+
+            let reply = parts.compactMap { $0["text"] as? String }.joined(separator: "\n")
+            return (reply, history)
+        }
+    }
+
+    private func callGenerateContent(history: [[String: Any]]) async throws -> [String: Any] {
+        var request = URLRequest(url: Self.generateURL)
+        request.httpMethod = "POST"
+        request.setValue(apiKey, forHTTPHeaderField: "x-goog-api-key")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        let body: [String: Any] = [
+            "system_instruction": ["parts": [["text": Self.systemPrompt]]],
+            "tools": [["functionDeclarations": Self.toolDefinitions]],
+            "contents": history
+        ]
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            throw GeminiAgentError.requestFailed("Couldn't parse Gemini's response.")
+        }
+        guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
+            let message = (json["error"] as? [String: Any])?["message"] as? String
+                ?? "Gemini request failed (HTTP \((response as? HTTPURLResponse)?.statusCode ?? -1))."
+            throw GeminiAgentError.requestFailed(message)
+        }
+        return json
+    }
+
+    private func runTool(name: String, input: [String: Any]) async -> String {
+        do {
+            switch name {
+            case "list_repository_files":
+                let path = input["path"] as? String ?? ""
+                let entries = try await GitHubRepoFileService.listFiles(repo: repo, token: githubToken, path: path)
+                if entries.isEmpty { return "(empty directory)" }
+                return entries.map { "\($0.type): \($0.path)" }.joined(separator: "\n")
+            case "read_file":
+                guard let path = input["path"] as? String else { return "Error: missing path." }
+                return try await GitHubRepoFileService.readFile(repo: repo, token: githubToken, path: path)
+            case "write_file":
+                guard let path = input["path"] as? String,
+                      let content = input["content"] as? String,
+                      let message = input["commit_message"] as? String else {
+                    return "Error: missing path, content, or commit_message."
+                }
+                let sha = try await GitHubRepoFileService.writeFile(
+                    repo: repo, token: githubToken, path: path, content: content, commitMessage: message
+                )
+                return "Committed \(path) to \(repo.defaultBranch) (commit \(sha))."
+            default:
+                return "Error: unknown tool \(name)."
+            }
+        } catch {
+            return "Error: \(error.localizedDescription)"
+        }
+    }
+
+    private func activityDescription(tool: String, input: [String: Any]) -> String {
+        let path = input["path"] as? String
+        switch tool {
+        case "list_repository_files":
+            return "Listing files in \(path?.isEmpty == false ? path! : "repository root")…"
+        case "read_file":
+            return "Reading \(path ?? "a file")…"
+        case "write_file":
+            return "Updating \(path ?? "a file")…"
+        default:
+            return "Running \(tool)…"
+        }
+    }
+
+    private static let systemPrompt = """
+    You are helping a developer edit a web app's source code, working from a screenshot of the app with visual \
+    annotations (circles, highlights, freehand marks) plus notes transcribed from their handwriting. Use the \
+    available tools to inspect the repository and read the relevant files before editing anything. When you're \
+    confident about what to change, edit the file(s) and commit with a clear commit message. If you need the \
+    user to pick between a small number of specific options before you can proceed, call ask_clarifying_question \
+    rather than guessing. For open-ended questions, just ask in your normal reply text.
+    """
+
+    private static let toolDefinitions: [[String: Any]] = [
+        [
+            "name": "ask_clarifying_question",
+            "description": "Ask the user a clarifying question with a fixed set of short answer choices, when you need them to pick between specific options before continuing. Only use this for genuine multiple-choice decisions, not open-ended questions -- for those, just ask in your normal reply text.",
+            "parameters": [
+                "type": "OBJECT",
+                "properties": [
+                    "question": ["type": "STRING"],
+                    "options": [
+                        "type": "ARRAY",
+                        "items": ["type": "STRING"],
+                        "description": "2 to 6 short answer choices."
+                    ]
+                ],
+                "required": ["question", "options"]
+            ]
+        ],
+        [
+            "name": "list_repository_files",
+            "description": "List files and subdirectories at a path in the connected GitHub repository.",
+            "parameters": [
+                "type": "OBJECT",
+                "properties": [
+                    "path": ["type": "STRING", "description": "Directory path; empty string for the repository root."]
+                ],
+                "required": [String]()
+            ]
+        ],
+        [
+            "name": "read_file",
+            "description": "Read the full text contents of a file in the connected GitHub repository.",
+            "parameters": [
+                "type": "OBJECT",
+                "properties": [
+                    "path": ["type": "STRING", "description": "File path relative to the repository root."]
+                ],
+                "required": ["path"]
+            ]
+        ],
+        [
+            "name": "write_file",
+            "description": "Create or update a file in the connected GitHub repository and commit the change to the repository's default branch.",
+            "parameters": [
+                "type": "OBJECT",
+                "properties": [
+                    "path": ["type": "STRING"],
+                    "content": ["type": "STRING", "description": "The complete new contents of the file."],
+                    "commit_message": ["type": "STRING"]
+                ],
+                "required": ["path", "content", "commit_message"]
+            ]
+        ]
+    ]
+}

@@ -31,7 +31,7 @@ final class ConversationStore: ObservableObject {
     }
 
     /// Kicks off (or continues) the conversation with a new Image A / Text A round.
-    func send(image: UIImage, notesText: String, agent: ClaudeAgentService) async {
+    func send(image: UIImage, notesText: String, agent: any AgentService) async {
         let instruction: String
         if hasStarted {
             instruction = "Here's additional information:\n\n\(notesText)"
@@ -49,7 +49,7 @@ final class ConversationStore: ObservableObject {
     }
 
     /// A plain typed follow-up from the user (answering an open-ended question, adding context, etc).
-    func sendFollowUp(text: String, agent: ClaudeAgentService) async {
+    func sendFollowUp(text: String, agent: any AgentService) async {
         displayMessages.append(ChatMessage(role: .user, text: text, image: nil))
         await runAgent(userText: text, image: nil, agent: agent)
     }
@@ -62,7 +62,7 @@ final class ConversationStore: ObservableObject {
         pendingQuestionContinuation = nil
     }
 
-    private func runAgent(userText: String, image: UIImage?, agent: ClaudeAgentService) async {
+    private func runAgent(userText: String, image: UIImage?, agent: any AgentService) async {
         isWaitingForClaude = true
         errorMessage = nil
         do {

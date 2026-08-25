@@ -12,11 +12,14 @@ import SwiftUI
 struct SettingsView: View {
     @ObservedObject var githubAuth: GitHubAuthManager
     @ObservedObject var claudeAuth: ClaudeAuthManager
+    @ObservedObject var geminiAuth: GeminiAuthManager
     @ObservedObject var vercelAuth: VercelAuthManager
+    @ObservedObject var providerStore: AIProviderStore
     @ObservedObject var repoStore: RepoSelectionStore
     @Environment(\.dismiss) private var dismiss
 
     @State private var showingAPIKeySheet = false
+    @State private var showingGeminiKeySheet = false
     @State private var showingVercelTokenSheet = false
 
     var body: some View {
@@ -64,6 +67,40 @@ struct SettingsView: View {
                     Text("Claude").font(.baroqueHeadline).foregroundColor(BaroqueTheme.gold)
                 }
                 .listRowBackground(BaroqueTheme.cream)
+
+                Section {
+                    connectionRow(isConnected: geminiAuth.isConnected)
+                    if let error = geminiAuth.errorMessage {
+                        Text(error).font(.caption).foregroundColor(BaroqueTheme.burgundy)
+                    }
+                    if geminiAuth.isConnected {
+                        Button("Disconnect", role: .destructive) { geminiAuth.disconnect() }
+                            .buttonStyle(.ornate(BaroqueTheme.burgundy))
+                    } else {
+                        Button("Connect") { showingGeminiKeySheet = true }
+                            .buttonStyle(.ornate(BaroqueTheme.sapphire))
+                    }
+                } header: {
+                    Text("Gemini").font(.baroqueHeadline).foregroundColor(BaroqueTheme.gold)
+                } footer: {
+                    Text("Google's Gemini API has a free tier -- an alternative to Claude for the same read/edit/commit agent.")
+                }
+                .listRowBackground(BaroqueTheme.cream)
+
+                if claudeAuth.isConnected && geminiAuth.isConnected {
+                    Section {
+                        Picker("Active AI Provider", selection: $providerStore.preferred) {
+                            Text("Claude").tag(AIProvider.claude)
+                            Text("Gemini").tag(AIProvider.gemini)
+                        }
+                        .pickerStyle(.segmented)
+                    } header: {
+                        Text("AI Provider").font(.baroqueHeadline).foregroundColor(BaroqueTheme.gold)
+                    } footer: {
+                        Text("Both are connected -- pick which one Gesso sends your annotations to.")
+                    }
+                    .listRowBackground(BaroqueTheme.cream)
+                }
 
                 if githubAuth.isConnected {
                     Section {
@@ -115,6 +152,9 @@ struct SettingsView: View {
         .sheet(isPresented: $showingAPIKeySheet) {
             ClaudeAPIKeySheet(claudeAuth: claudeAuth, isPresented: $showingAPIKeySheet)
         }
+        .sheet(isPresented: $showingGeminiKeySheet) {
+            GeminiAPIKeySheet(geminiAuth: geminiAuth, isPresented: $showingGeminiKeySheet)
+        }
         .sheet(isPresented: $showingVercelTokenSheet) {
             VercelAPIKeySheet(vercelAuth: vercelAuth, isPresented: $showingVercelTokenSheet)
         }
@@ -135,7 +175,9 @@ struct SettingsView: View {
     SettingsView(
         githubAuth: GitHubAuthManager(),
         claudeAuth: ClaudeAuthManager(),
+        geminiAuth: GeminiAuthManager(),
         vercelAuth: VercelAuthManager(),
+        providerStore: AIProviderStore(),
         repoStore: RepoSelectionStore()
     )
 }

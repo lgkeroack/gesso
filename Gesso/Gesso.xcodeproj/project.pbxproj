@@ -39,6 +39,11 @@
 		AA0034 /* VercelAuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0035 /* VercelAuthManager.swift */; };
 		AA0035 /* VercelAPIKeySheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0036 /* VercelAPIKeySheet.swift */; };
 		AA0036 /* VercelDeploymentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0037 /* VercelDeploymentService.swift */; };
+		AA0037 /* AgentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0038 /* AgentService.swift */; };
+		AA0038 /* GeminiAuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0039 /* GeminiAuthManager.swift */; };
+		AA0039 /* GeminiAPIKeySheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0040 /* GeminiAPIKeySheet.swift */; };
+		AA0040 /* GeminiAgentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0041 /* GeminiAgentService.swift */; };
+		AA0041 /* AIProviderStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0042 /* AIProviderStore.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -76,6 +81,11 @@
 		BB0035 /* VercelAuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VercelAuthManager.swift; sourceTree = "<group>"; };
 		BB0036 /* VercelAPIKeySheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VercelAPIKeySheet.swift; sourceTree = "<group>"; };
 		BB0037 /* VercelDeploymentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VercelDeploymentService.swift; sourceTree = "<group>"; };
+		BB0038 /* AgentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentService.swift; sourceTree = "<group>"; };
+		BB0039 /* GeminiAuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeminiAuthManager.swift; sourceTree = "<group>"; };
+		BB0040 /* GeminiAPIKeySheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeminiAPIKeySheet.swift; sourceTree = "<group>"; };
+		BB0041 /* GeminiAgentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeminiAgentService.swift; sourceTree = "<group>"; };
+		BB0042 /* AIProviderStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIProviderStore.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -130,6 +140,11 @@
 				BB0035 /* VercelAuthManager.swift */,
 				BB0036 /* VercelAPIKeySheet.swift */,
 				BB0037 /* VercelDeploymentService.swift */,
+				BB0038 /* AgentService.swift */,
+				BB0039 /* GeminiAuthManager.swift */,
+				BB0040 /* GeminiAPIKeySheet.swift */,
+				BB0041 /* GeminiAgentService.swift */,
+				BB0042 /* AIProviderStore.swift */,
 				BB0008 /* Info.plist */,
 				BB0003 /* Assets.xcassets */,
 				EE0004 /* Preview Content */,
@@ -253,6 +268,11 @@
 				AA0034 /* VercelAuthManager.swift in Sources */,
 				AA0035 /* VercelAPIKeySheet.swift in Sources */,
 				AA0036 /* VercelDeploymentService.swift in Sources */,
+				AA0037 /* AgentService.swift in Sources */,
+				AA0038 /* GeminiAuthManager.swift in Sources */,
+				AA0039 /* GeminiAPIKeySheet.swift in Sources */,
+				AA0040 /* GeminiAgentService.swift in Sources */,
+				AA0041 /* AIProviderStore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

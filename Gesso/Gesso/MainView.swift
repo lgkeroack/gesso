@@ -18,7 +18,9 @@ struct MainView: View {
     @ObservedObject var repoStore: RepoSelectionStore
     @ObservedObject var githubAuth: GitHubAuthManager
     @ObservedObject var claudeAuth: ClaudeAuthManager
+    @ObservedObject var geminiAuth: GeminiAuthManager
     @ObservedObject var vercelAuth: VercelAuthManager
+    @ObservedObject var providerStore: AIProviderStore
 
     @StateObject private var webViewStore = WebViewStore()
     @State private var urlText = ""
@@ -60,13 +62,22 @@ struct MainView: View {
             }
         }
         .sheet(isPresented: $showingSettings) {
-            SettingsView(githubAuth: githubAuth, claudeAuth: claudeAuth, vercelAuth: vercelAuth, repoStore: repoStore)
+            SettingsView(
+                githubAuth: githubAuth,
+                claudeAuth: claudeAuth,
+                geminiAuth: geminiAuth,
+                vercelAuth: vercelAuth,
+                providerStore: providerStore,
+                repoStore: repoStore
+            )
         }
         .sheet(isPresented: $showingChat) {
-            if let repo = repoStore.selectedRepo, let token = githubAuth.accessToken, let apiKey = claudeAuth.apiKey {
+            if let repo = repoStore.selectedRepo, let token = githubAuth.accessToken,
+               let agent = buildAgent(repo: repo, githubToken: token) {
                 ChatView(
                     conversation: conversation,
-                    agent: ClaudeAgentService(apiKey: apiKey, repo: repo, githubToken: token),
+                    agent: agent,
+                    providerName: providerDisplayName,
                     onBack: goBackToCanvas,
                     onForward: startFreshRound
                 )
@@ -192,13 +203,33 @@ struct MainView: View {
 
             guard let repo = repoStore.selectedRepo,
                   let githubToken = githubAuth.accessToken,
-                  let apiKey = claudeAuth.apiKey else {
+                  let agent = buildAgent(repo: repo, githubToken: githubToken) else {
                 captureError = "Missing connection details."
                 return
             }
-            let agent = ClaudeAgentService(apiKey: apiKey, repo: repo, githubToken: githubToken)
             showingChat = true
             await conversation.send(image: imageA, notesText: textA, agent: agent)
+        }
+    }
+
+    private var providerDisplayName: String {
+        switch providerStore.activeProvider(claudeConnected: claudeAuth.isConnected, geminiConnected: geminiAuth.isConnected) {
+        case .claude: return "Claude"
+        case .gemini: return "Gemini"
+        case nil: return "AI"
+        }
+    }
+
+    private func buildAgent(repo: GitHubRepository, githubToken: String) -> (any AgentService)? {
+        switch providerStore.activeProvider(claudeConnected: claudeAuth.isConnected, geminiConnected: geminiAuth.isConnected) {
+        case .claude:
+            guard let apiKey = claudeAuth.apiKey else { return nil }
+            return ClaudeAgentService(apiKey: apiKey, repo: repo, githubToken: githubToken)
+        case .gemini:
+            guard let apiKey = geminiAuth.apiKey else { return nil }
+            return GeminiAgentService(apiKey: apiKey, repo: repo, githubToken: githubToken)
+        case nil:
+            return nil
         }
     }
 
@@ -237,6 +268,8 @@ struct MainView: View {
         repoStore: RepoSelectionStore(),
         githubAuth: GitHubAuthManager(),
         claudeAuth: ClaudeAuthManager(),
-        vercelAuth: VercelAuthManager()
+        geminiAuth: GeminiAuthManager(),
+        vercelAuth: VercelAuthManager(),
+        providerStore: AIProviderStore()
     )
 }

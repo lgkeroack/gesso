@@ -12,7 +12,8 @@ import SwiftUI
 
 struct ChatView: View {
     @ObservedObject var conversation: ConversationStore
-    let agent: ClaudeAgentService
+    let agent: any AgentService
+    let providerName: String
     var onBack: () -> Void
     var onForward: () -> Void
 
@@ -41,7 +42,7 @@ struct ChatView: View {
                     .foregroundColor(BaroqueTheme.sapphire)
             }
             Spacer()
-            Text("Claude").font(.baroqueHeadline).foregroundColor(BaroqueTheme.gold)
+            Text(providerName).font(.baroqueHeadline).foregroundColor(BaroqueTheme.gold)
             Spacer()
             Button(action: onForward) {
                 Label("New", systemImage: "chevron.right")
@@ -142,7 +143,7 @@ struct ChatView: View {
 
     private var inputBar: some View {
         HStack {
-            TextField("Message Claude…", text: $followUpText)
+            TextField("Message \(providerName)…", text: $followUpText)
                 .textFieldStyle(.roundedBorder)
                 .onSubmit(sendFollowUp)
             Button("Send", action: sendFollowUp)
