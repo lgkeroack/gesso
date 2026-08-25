@@ -35,14 +35,18 @@ struct ConnectView: View {
                 .padding(.top, 40)
 
                 VStack(spacing: 16) {
-                    connectionRow(
-                        title: "GitHub",
-                        subtitle: "Access repositories to read and commit changes",
-                        systemImage: "chevron.left.forwardslash.chevron.right",
-                        isConnected: githubAuth.isConnected,
-                        isBusy: githubAuth.isAuthenticating,
-                        action: { githubAuth.connect() }
-                    )
+                    if githubAuth.userCode != nil {
+                        GitHubDeviceCodeView(githubAuth: githubAuth)
+                    } else {
+                        connectionRow(
+                            title: "GitHub",
+                            subtitle: "Access repositories to read and commit changes",
+                            systemImage: "chevron.left.forwardslash.chevron.right",
+                            isConnected: githubAuth.isConnected,
+                            isBusy: githubAuth.isAuthenticating,
+                            action: { githubAuth.connect() }
+                        )
+                    }
                     if let error = githubAuth.errorMessage {
                         Text(error)
                             .font(.caption)

@@ -12,7 +12,6 @@
 		AA0004 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BB0004 /* Preview Assets.xcassets */; };
 		AA0007 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0007 /* SettingsView.swift */; };
 		AA0008 /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0009 /* Keychain.swift */; };
-		AA0009 /* PKCE.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0010 /* PKCE.swift */; };
 		AA0010 /* GitHubAuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0011 /* GitHubAuthManager.swift */; };
 		AA0011 /* ClaudeAuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0012 /* ClaudeAuthManager.swift */; };
 		AA0012 /* ConnectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0013 /* ConnectView.swift */; };
@@ -36,6 +35,7 @@
 		AA0030 /* ConversationStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0031 /* ConversationStore.swift */; };
 		AA0031 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0032 /* ChatView.swift */; };
 		AA0032 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0033 /* Theme.swift */; };
+		AA0033 /* GitHubDeviceCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0034 /* GitHubDeviceCodeView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -46,7 +46,6 @@
 		CC0001 /* Gesso.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Gesso.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB0008 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BB0009 /* Keychain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Keychain.swift; sourceTree = "<group>"; };
-		BB0010 /* PKCE.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PKCE.swift; sourceTree = "<group>"; };
 		BB0011 /* GitHubAuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitHubAuthManager.swift; sourceTree = "<group>"; };
 		BB0012 /* ClaudeAuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudeAuthManager.swift; sourceTree = "<group>"; };
 		BB0013 /* ConnectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectView.swift; sourceTree = "<group>"; };
@@ -70,6 +69,7 @@
 		BB0031 /* ConversationStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationStore.swift; sourceTree = "<group>"; };
 		BB0032 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
 		BB0033 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		BB0034 /* GitHubDeviceCodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitHubDeviceCodeView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,7 +97,6 @@
 				BB0001 /* GessoApp.swift */,
 				BB0007 /* SettingsView.swift */,
 				BB0009 /* Keychain.swift */,
-				BB0010 /* PKCE.swift */,
 				BB0011 /* GitHubAuthManager.swift */,
 				BB0012 /* ClaudeAuthManager.swift */,
 				BB0013 /* ConnectView.swift */,
@@ -121,6 +120,7 @@
 				BB0031 /* ConversationStore.swift */,
 				BB0032 /* ChatView.swift */,
 				BB0033 /* Theme.swift */,
+				BB0034 /* GitHubDeviceCodeView.swift */,
 				BB0008 /* Info.plist */,
 				BB0003 /* Assets.xcassets */,
 				EE0004 /* Preview Content */,
@@ -217,7 +217,6 @@
 				AA0001 /* GessoApp.swift in Sources */,
 				AA0007 /* SettingsView.swift in Sources */,
 				AA0008 /* Keychain.swift in Sources */,
-				AA0009 /* PKCE.swift in Sources */,
 				AA0010 /* GitHubAuthManager.swift in Sources */,
 				AA0011 /* ClaudeAuthManager.swift in Sources */,
 				AA0012 /* ConnectView.swift in Sources */,
@@ -241,6 +240,7 @@
 				AA0030 /* ConversationStore.swift in Sources */,
 				AA0031 /* ChatView.swift in Sources */,
 				AA0032 /* Theme.swift in Sources */,
+				AA0033 /* GitHubDeviceCodeView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

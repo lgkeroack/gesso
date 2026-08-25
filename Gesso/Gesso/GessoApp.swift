@@ -24,9 +24,6 @@ struct GessoApp: App {
                     MainView(repoStore: repoStore, githubAuth: githubAuth, claudeAuth: claudeAuth)
                 }
             }
-            .onOpenURL { url in
-                githubAuth.handleRedirect(url: url)
-            }
             .tint(BaroqueTheme.gold)
         }
     }

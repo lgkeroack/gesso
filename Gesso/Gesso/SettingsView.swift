@@ -21,19 +21,25 @@ struct SettingsView: View {
         NavigationView {
             Form {
                 Section {
-                    connectionRow(isConnected: githubAuth.isConnected)
-                    if let error = githubAuth.errorMessage {
-                        Text(error).font(.caption).foregroundColor(BaroqueTheme.burgundy)
-                    }
-                    if githubAuth.isConnected {
-                        Button("Disconnect", role: .destructive) {
-                            githubAuth.disconnect()
-                            repoStore.clear()
-                        }
-                        .buttonStyle(.ornate(BaroqueTheme.burgundy))
+                    if githubAuth.userCode != nil {
+                        GitHubDeviceCodeView(githubAuth: githubAuth)
+                            .listRowInsets(EdgeInsets())
+                            .listRowBackground(Color.clear)
                     } else {
-                        Button("Connect") { githubAuth.connect() }
-                            .buttonStyle(.ornate(BaroqueTheme.sapphire))
+                        connectionRow(isConnected: githubAuth.isConnected)
+                        if let error = githubAuth.errorMessage {
+                            Text(error).font(.caption).foregroundColor(BaroqueTheme.burgundy)
+                        }
+                        if githubAuth.isConnected {
+                            Button("Disconnect", role: .destructive) {
+                                githubAuth.disconnect()
+                                repoStore.clear()
+                            }
+                            .buttonStyle(.ornate(BaroqueTheme.burgundy))
+                        } else {
+                            Button("Connect") { githubAuth.connect() }
+                                .buttonStyle(.ornate(BaroqueTheme.sapphire))
+                        }
                     }
                 } header: {
                     Text("GitHub").font(.baroqueHeadline).foregroundColor(BaroqueTheme.gold)
