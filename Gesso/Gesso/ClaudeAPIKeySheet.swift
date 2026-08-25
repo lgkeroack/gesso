@@ -15,7 +15,7 @@ struct ClaudeAPIKeySheet: View {
     @State private var apiKey = ""
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             Form {
                 Section {
                     SecureField("sk-ant-...", text: $apiKey)

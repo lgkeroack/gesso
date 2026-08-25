@@ -15,7 +15,7 @@ struct GeminiAPIKeySheet: View {
     @State private var apiKey = ""
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             Form {
                 Section {
                     SecureField("AIza...", text: $apiKey)

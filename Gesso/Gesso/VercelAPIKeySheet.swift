@@ -14,7 +14,7 @@ struct VercelAPIKeySheet: View {
     @State private var token = ""
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             Form {
                 Section {
                     SecureField("Personal Access Token", text: $token)

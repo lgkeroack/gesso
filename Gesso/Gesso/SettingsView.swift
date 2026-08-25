@@ -23,7 +23,7 @@ struct SettingsView: View {
     @State private var showingVercelTokenSheet = false
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             Form {
                 Section {
                     if githubAuth.userCode != nil {
