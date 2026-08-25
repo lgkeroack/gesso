@@ -3,13 +3,17 @@
 //  Gesso
 //
 //  Shown while GitHub's device flow is in progress: the code to enter at
-//  github.com/login/device, a button to open that page, and a cancel option.
+//  github.com/login/device (copyable), a button to open that page, and a
+//  cancel option.
 //
 
 import SwiftUI
+import UIKit
 
 struct GitHubDeviceCodeView: View {
     @ObservedObject var githubAuth: GitHubAuthManager
+
+    @State private var didCopy = false
 
     var body: some View {
         VStack(spacing: 12) {
@@ -17,11 +21,22 @@ struct GitHubDeviceCodeView: View {
                 .font(.baroqueHeadline)
                 .foregroundColor(BaroqueTheme.ink)
 
-            Text(githubAuth.userCode ?? "")
-                .font(.system(size: 30, weight: .bold, design: .monospaced))
-                .tracking(4)
-                .foregroundColor(BaroqueTheme.gold)
-                .padding(.vertical, 4)
+            HStack(spacing: 10) {
+                Text(githubAuth.userCode ?? "")
+                    .font(.system(size: 30, weight: .bold, design: .monospaced))
+                    .tracking(4)
+                    .foregroundColor(BaroqueTheme.gold)
+
+                Button(action: copyCode) {
+                    Image(systemName: didCopy ? "checkmark" : "doc.on.doc")
+                        .foregroundColor(didCopy ? BaroqueTheme.emerald : BaroqueTheme.sapphire)
+                        .font(.title3)
+                }
+                .buttonStyle(.plain)
+                .disabled(githubAuth.userCode == nil)
+                .accessibilityLabel("Copy code")
+            }
+            .padding(.vertical, 4)
 
             if let verificationURI = githubAuth.verificationURI {
                 Text(verificationURI)
@@ -42,5 +57,15 @@ struct GitHubDeviceCodeView: View {
         }
         .padding()
         .ornateCard(tint: BaroqueTheme.gold)
+    }
+
+    private func copyCode() {
+        guard let code = githubAuth.userCode else { return }
+        UIPasteboard.general.string = code
+        withAnimation { didCopy = true }
+        Task {
+            try? await Task.sleep(nanoseconds: 1_500_000_000)
+            withAnimation { didCopy = false }
+        }
     }
 }
