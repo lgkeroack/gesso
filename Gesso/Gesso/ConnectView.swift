@@ -15,6 +15,7 @@ struct ConnectView: View {
     @ObservedObject var geminiAuth: GeminiAuthManager
     @ObservedObject var vercelAuth: VercelAuthManager
     @ObservedObject var repoStore: RepoSelectionStore
+    var onContinue: () -> Void
 
     @State private var showingAPIKeySheet = false
     @State private var showingGeminiKeySheet = false
@@ -123,6 +124,12 @@ struct ConnectView: View {
                 }
                 .padding(.horizontal, 40)
 
+                if isReadyToContinue {
+                    Button("Continue to Gesso", action: onContinue)
+                        .buttonStyle(.flat(AppTheme.success))
+                        .padding(.horizontal, 40)
+                }
+
                 Spacer()
             }
         }
@@ -138,6 +145,12 @@ struct ConnectView: View {
         .sheet(isPresented: $showingRepoPicker) {
             RepoPickerView(githubAuth: githubAuth, repoStore: repoStore, isPresented: $showingRepoPicker)
         }
+    }
+
+    private var isReadyToContinue: Bool {
+        githubAuth.isConnected
+            && (claudeAuth.isConnected || geminiAuth.isConnected)
+            && repoStore.selectedRepo != nil
     }
 
     @ViewBuilder
@@ -184,6 +197,7 @@ struct ConnectView: View {
         claudeAuth: ClaudeAuthManager(),
         geminiAuth: GeminiAuthManager(),
         vercelAuth: VercelAuthManager(),
-        repoStore: RepoSelectionStore()
+        repoStore: RepoSelectionStore(),
+        onContinue: {}
     )
 }
