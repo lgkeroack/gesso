@@ -83,6 +83,9 @@ struct MainView: View {
                 )
             }
         }
+        .onChange(of: repoStore.selectedRepo) { _, _ in
+            startFreshRound()
+        }
         .alert("Couldn't process annotations", isPresented: .constant(captureError != nil), presenting: captureError) { _ in
             Button("OK") { captureError = nil }
         } message: { message in

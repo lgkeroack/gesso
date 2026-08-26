@@ -19,10 +19,8 @@ struct GessoApp: App {
     var body: some Scene {
         WindowGroup {
             Group {
-                if !githubAuth.isConnected || !(claudeAuth.isConnected || geminiAuth.isConnected) {
-                    ConnectView(githubAuth: githubAuth, claudeAuth: claudeAuth, geminiAuth: geminiAuth, vercelAuth: vercelAuth)
-                } else if repoStore.selectedRepo == nil {
-                    RepoPickerView(githubAuth: githubAuth, repoStore: repoStore)
+                if !githubAuth.isConnected || !(claudeAuth.isConnected || geminiAuth.isConnected) || repoStore.selectedRepo == nil {
+                    ConnectView(githubAuth: githubAuth, claudeAuth: claudeAuth, geminiAuth: geminiAuth, vercelAuth: vercelAuth, repoStore: repoStore)
                 } else {
                     MainView(
                         repoStore: repoStore,

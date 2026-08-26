@@ -21,6 +21,7 @@ struct SettingsView: View {
     @State private var showingAPIKeySheet = false
     @State private var showingGeminiKeySheet = false
     @State private var showingVercelTokenSheet = false
+    @State private var showingRepoPicker = false
 
     var body: some View {
         NavigationStack {
@@ -130,8 +131,7 @@ struct SettingsView: View {
                         Text("None selected").foregroundColor(AppTheme.ink.opacity(0.5))
                     }
                     Button("Change Repository") {
-                        repoStore.clear()
-                        dismiss()
+                        showingRepoPicker = true
                     }
                     .buttonStyle(.flat(AppTheme.accent))
                     .disabled(!githubAuth.isConnected)
@@ -157,6 +157,9 @@ struct SettingsView: View {
         }
         .sheet(isPresented: $showingVercelTokenSheet) {
             VercelAPIKeySheet(vercelAuth: vercelAuth, isPresented: $showingVercelTokenSheet)
+        }
+        .sheet(isPresented: $showingRepoPicker) {
+            RepoPickerView(githubAuth: githubAuth, repoStore: repoStore, isPresented: $showingRepoPicker)
         }
     }
 

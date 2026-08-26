@@ -2,8 +2,9 @@
 //  RepoPickerView.swift
 //  Gesso
 //
-//  Lists repositories the Gesso GitHub App can access and lets the user
-//  pick one to work on.
+//  Sheet listing repositories the Gesso GitHub App can access, letting the
+//  user pick one to work on. Presented from ConnectView (initial pick) and
+//  from SettingsView ("Change Repository").
 //
 
 import SwiftUI
@@ -11,6 +12,7 @@ import SwiftUI
 struct RepoPickerView: View {
     @ObservedObject var githubAuth: GitHubAuthManager
     @ObservedObject var repoStore: RepoSelectionStore
+    @Binding var isPresented: Bool
 
     @State private var repos: [GitHubRepository] = []
     @State private var isLoading = false
@@ -45,6 +47,7 @@ struct RepoPickerView: View {
                     List(filteredRepos) { repo in
                         Button {
                             repoStore.select(repo)
+                            isPresented = false
                         } label: {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(repo.fullName).font(.sectionHeadline)
@@ -63,6 +66,11 @@ struct RepoPickerView: View {
             }
             .background(AppTheme.background.ignoresSafeArea())
             .navigationTitle("Pick a Repository")
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { isPresented = false }
+                }
+            }
         }
         .task {
             await loadRepos()
@@ -86,5 +94,5 @@ struct RepoPickerView: View {
 }
 
 #Preview {
-    RepoPickerView(githubAuth: GitHubAuthManager(), repoStore: RepoSelectionStore())
+    RepoPickerView(githubAuth: GitHubAuthManager(), repoStore: RepoSelectionStore(), isPresented: .constant(true))
 }

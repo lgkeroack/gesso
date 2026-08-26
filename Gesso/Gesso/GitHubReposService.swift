@@ -12,14 +12,15 @@ import Foundation
 
 enum GitHubReposServiceError: LocalizedError {
     case noInstallationFound
-    case requestFailed(Int)
+    case requestFailed(endpoint: String, code: Int, message: String?)
 
     var errorDescription: String? {
         switch self {
         case .noInstallationFound:
             return "No installation of the Gesso GitHub App was found on your account. Install it from GitHub settings first."
-        case .requestFailed(let code):
-            return "GitHub request failed (HTTP \(code))."
+        case .requestFailed(let endpoint, let code, let message):
+            let detail = message.map { ": \($0)" } ?? ""
+            return "GitHub request failed fetching \(endpoint) (HTTP \(code))\(detail)."
         }
     }
 }
@@ -57,7 +58,7 @@ enum GitHubReposService {
     private static func fetchInstallations(token: String) async throws -> [Installation] {
         let url = URL(string: "\(apiBase)/user/installations")!
         let (data, response) = try await authorizedRequest(url: url, token: token)
-        try validate(response)
+        try validate(response, data: data, endpoint: "installations")
         return try JSONDecoder().decode(InstallationsResponse.self, from: data).installations
     }
 
@@ -68,7 +69,7 @@ enum GitHubReposService {
             URLQueryItem(name: "page", value: "\(page)")
         ]
         let (data, response) = try await authorizedRequest(url: components.url!, token: token)
-        try validate(response)
+        try validate(response, data: data, endpoint: "repositories")
         return try JSONDecoder().decode(RepositoriesResponse.self, from: data).repositories
     }
 
@@ -77,12 +78,19 @@ enum GitHubReposService {
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
         request.setValue("2022-11-28", forHTTPHeaderField: "X-GitHub-Api-Version")
+        request.setValue("Gesso-iOS", forHTTPHeaderField: "User-Agent")
         return try await URLSession.shared.data(for: request)
     }
 
-    private static func validate(_ response: URLResponse) throws {
+    private static func validate(_ response: URLResponse, data: Data, endpoint: String) throws {
         guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
-            throw GitHubReposServiceError.requestFailed((response as? HTTPURLResponse)?.statusCode ?? -1)
+            let code = (response as? HTTPURLResponse)?.statusCode ?? -1
+            throw GitHubReposServiceError.requestFailed(endpoint: endpoint, code: code, message: decodeErrorMessage(from: data))
         }
+    }
+
+    private static func decodeErrorMessage(from data: Data) -> String? {
+        struct Envelope: Decodable { let message: String }
+        return try? JSONDecoder().decode(Envelope.self, from: data).message
     }
 }

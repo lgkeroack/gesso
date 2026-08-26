@@ -14,10 +14,12 @@ struct ConnectView: View {
     @ObservedObject var claudeAuth: ClaudeAuthManager
     @ObservedObject var geminiAuth: GeminiAuthManager
     @ObservedObject var vercelAuth: VercelAuthManager
+    @ObservedObject var repoStore: RepoSelectionStore
 
     @State private var showingAPIKeySheet = false
     @State private var showingGeminiKeySheet = false
     @State private var showingVercelTokenSheet = false
+    @State private var showingRepoPicker = false
 
     var body: some View {
         ZStack {
@@ -58,6 +60,18 @@ struct ConnectView: View {
                         Text(error)
                             .font(.caption)
                             .foregroundColor(AppTheme.danger)
+                    }
+
+                    if githubAuth.isConnected {
+                        connectionRow(
+                            title: "Repository",
+                            subtitle: repoStore.selectedRepo?.fullName ?? "Choose which repo Gesso will read and commit to",
+                            systemImage: "folder",
+                            isConnected: repoStore.selectedRepo != nil,
+                            isBusy: false,
+                            buttonLabel: "Select",
+                            action: { showingRepoPicker = true }
+                        )
                     }
 
                     Text("AI Provider -- connect at least one")
@@ -121,6 +135,9 @@ struct ConnectView: View {
         .sheet(isPresented: $showingVercelTokenSheet) {
             VercelAPIKeySheet(vercelAuth: vercelAuth, isPresented: $showingVercelTokenSheet)
         }
+        .sheet(isPresented: $showingRepoPicker) {
+            RepoPickerView(githubAuth: githubAuth, repoStore: repoStore, isPresented: $showingRepoPicker)
+        }
     }
 
     @ViewBuilder
@@ -130,6 +147,7 @@ struct ConnectView: View {
         systemImage: String,
         isConnected: Bool,
         isBusy: Bool,
+        buttonLabel: String = "Connect",
         action: @escaping () -> Void
     ) -> some View {
         HStack {
@@ -152,7 +170,7 @@ struct ConnectView: View {
             } else if isBusy {
                 ProgressView()
             } else {
-                Button("Connect", action: action)
+                Button(buttonLabel, action: action)
                     .buttonStyle(.flat(AppTheme.accent))
             }
         }
@@ -165,6 +183,7 @@ struct ConnectView: View {
         githubAuth: GitHubAuthManager(),
         claudeAuth: ClaudeAuthManager(),
         geminiAuth: GeminiAuthManager(),
-        vercelAuth: VercelAuthManager()
+        vercelAuth: VercelAuthManager(),
+        repoStore: RepoSelectionStore()
     )
 }
