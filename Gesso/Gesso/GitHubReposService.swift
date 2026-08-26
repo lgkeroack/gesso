@@ -12,15 +12,15 @@ import Foundation
 
 enum GitHubReposServiceError: LocalizedError {
     case noInstallationFound
-    case requestFailed(endpoint: String, code: Int, message: String?)
+    case requestFailed(endpoint: String, code: Int, message: String?, tokenShape: String)
 
     var errorDescription: String? {
         switch self {
         case .noInstallationFound:
             return "No installation of the Gesso GitHub App was found on your account. Install it from GitHub settings first."
-        case .requestFailed(let endpoint, let code, let message):
+        case .requestFailed(let endpoint, let code, let message, let tokenShape):
             let detail = message.map { ": \($0)" } ?? ""
-            return "GitHub request failed fetching \(endpoint) (HTTP \(code))\(detail)."
+            return "GitHub request failed fetching \(endpoint) (HTTP \(code))\(detail). [token: \(tokenShape)]"
         }
     }
 }
@@ -58,7 +58,7 @@ enum GitHubReposService {
     private static func fetchInstallations(token: String) async throws -> [Installation] {
         let url = URL(string: "\(apiBase)/user/installations")!
         let (data, response) = try await authorizedRequest(url: url, token: token)
-        try validate(response, data: data, endpoint: "installations")
+        try validate(response, data: data, endpoint: "installations", token: token)
         return try JSONDecoder().decode(InstallationsResponse.self, from: data).installations
     }
 
@@ -69,7 +69,7 @@ enum GitHubReposService {
             URLQueryItem(name: "page", value: "\(page)")
         ]
         let (data, response) = try await authorizedRequest(url: components.url!, token: token)
-        try validate(response, data: data, endpoint: "repositories")
+        try validate(response, data: data, endpoint: "repositories", token: token)
         return try JSONDecoder().decode(RepositoriesResponse.self, from: data).repositories
     }
 
@@ -82,15 +82,28 @@ enum GitHubReposService {
         return try await URLSession.shared.data(for: request)
     }
 
-    private static func validate(_ response: URLResponse, data: Data, endpoint: String) throws {
+    private static func validate(_ response: URLResponse, data: Data, endpoint: String, token: String) throws {
         guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
             let code = (response as? HTTPURLResponse)?.statusCode ?? -1
-            throw GitHubReposServiceError.requestFailed(endpoint: endpoint, code: code, message: decodeErrorMessage(from: data))
+            throw GitHubReposServiceError.requestFailed(
+                endpoint: endpoint,
+                code: code,
+                message: decodeErrorMessage(from: data),
+                tokenShape: tokenShapeDescription(token)
+            )
         }
     }
 
     private static func decodeErrorMessage(from data: Data) -> String? {
         struct Envelope: Decodable { let message: String }
         return try? JSONDecoder().decode(Envelope.self, from: data).message
+    }
+
+    /// Safe-to-display shape of the token for diagnosing auth failures --
+    /// prefix + length, never the token itself. GitHub App user-to-server
+    /// tokens should start with "ghu_"; anything else means the wrong kind
+    /// of token (or garbage) is being sent.
+    private static func tokenShapeDescription(_ token: String) -> String {
+        "\(token.prefix(5))…, len=\(token.count)"
     }
 }

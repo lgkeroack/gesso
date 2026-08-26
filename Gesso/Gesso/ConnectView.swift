@@ -28,10 +28,6 @@ struct ConnectView: View {
 
             VStack(spacing: 32) {
                 VStack(spacing: 10) {
-                    Image(systemName: "paintbrush.pointed.fill")
-                        .font(.system(size: 44))
-                        .foregroundColor(AppTheme.accent)
-
                     Text("Connect Gesso")
                         .font(.displayTitle())
                         .foregroundColor(AppTheme.ink)

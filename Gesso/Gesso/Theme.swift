@@ -4,9 +4,8 @@
 //
 //  Flat, minimal design system: a neutral background/surface, ink text, and
 //  three semantic colors (accent / success / danger). Titles and section
-//  headers use Stardos Stencil (SIL OFL, see OFL-StardosStencil.txt) as a
-//  free stand-in for the Xants display face -- a classical stencil-serif
-//  with similar stroke-contrast character.
+//  headers use Futura, one of Apple's built-in system fonts -- no font file
+//  or Info.plist registration needed.
 //
 
 import SwiftUI
@@ -26,11 +25,11 @@ enum AppTheme {
 
 extension Font {
     static func displayTitle(_ size: CGFloat = 28) -> Font {
-        .custom("StardosStencil-Regular", size: size)
+        .custom("Futura-Medium", size: size)
     }
 
     static var sectionHeadline: Font {
-        .custom("StardosStencil-Regular", size: 17)
+        .custom("Futura-Medium", size: 17)
     }
 }
 
