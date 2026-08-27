@@ -88,6 +88,10 @@ final class GitHubAuthManager: ObservableObject {
                 initialInterval: deviceCode.interval,
                 expiresIn: deviceCode.expiresIn
             )
+            // GitHub handing back a token doesn't guarantee it actually
+            // authenticates -- confirm it works before reporting success,
+            // so "Connected" never lies about a token GitHub will reject.
+            try await GitHubReposService.verifyUser(token: token)
             KeychainStore.save(token, for: Self.accessTokenKey)
             isConnected = true
         } catch is CancellationError {

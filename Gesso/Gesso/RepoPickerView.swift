@@ -89,6 +89,12 @@ struct RepoPickerView: View {
             repos = try await GitHubReposService.fetchAccessibleRepositories(token: token)
         } catch {
             errorMessage = error.localizedDescription
+            // A rejected token isn't "connected" -- drop the stale state so
+            // the UI stops showing a green checkmark for a dead connection
+            // and prompts the user to reconnect instead.
+            if case GitHubReposServiceError.requestFailed(_, 401, _, _) = error {
+                githubAuth.disconnect()
+            }
         }
     }
 }

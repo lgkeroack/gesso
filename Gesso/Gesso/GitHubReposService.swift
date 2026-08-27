@@ -39,6 +39,7 @@ enum GitHubReposService {
     }
 
     static func fetchAccessibleRepositories(token: String) async throws -> [GitHubRepository] {
+        try await verifyUser(token: token)
         let installations = try await fetchInstallations(token: token)
         guard let installationID = installations.first?.id else {
             throw GitHubReposServiceError.noInstallationFound
@@ -53,6 +54,17 @@ enum GitHubReposService {
             page += 1
         }
         return allRepos
+    }
+
+    /// Hits the most permission-free authenticated endpoint there is, so a
+    /// failure here means the token is rejected outright (vs. rejected only
+    /// for the installations-scoped calls that follow). Also used right
+    /// after obtaining a token from the device flow, to confirm it actually
+    /// works before reporting the connection as good.
+    static func verifyUser(token: String) async throws {
+        let url = URL(string: "\(apiBase)/user")!
+        let (data, response) = try await authorizedRequest(url: url, token: token)
+        try validate(response, data: data, endpoint: "user", token: token)
     }
 
     private static func fetchInstallations(token: String) async throws -> [Installation] {
