@@ -2,9 +2,13 @@
 //  HandwritingRecognizer.swift
 //  Gesso
 //
-//  Groups nearby pen strokes into candidate words/phrases and runs Apple's
-//  on-device handwriting recognition (Vision) on each group. A group that
-//  isn't confidently recognized as text is left as a visual markup stroke.
+//  Groups nearby pen strokes into candidate phrases and runs Apple's
+//  on-device handwriting recognition (Vision) on each group. The merge
+//  distance is wide enough to bridge normal word-to-word spacing within a
+//  written phrase (so "delete this banner" recognizes as one note, not
+//  three), while staying well short of the distance to a separate
+//  annotation written elsewhere on the screen. A group that isn't
+//  confidently recognized as text is left as a visual markup stroke.
 //  Highlighter strokes are never treated as text -- a highlight is always
 //  a mark, not handwriting.
 //
@@ -52,8 +56,10 @@ enum HandwritingRecognizer {
     }
 
     /// Merges strokes whose (padded) bounding boxes overlap into groups, so a
-    /// multi-stroke word gets recognized as one unit rather than per-letter.
-    private static func cluster(_ strokes: [Stroke], padding: CGFloat = 24) -> [[Stroke]] {
+    /// multi-word phrase gets recognized (and later joined) as one unit
+    /// rather than each word being clustered, recognized, and sent
+    /// separately.
+    private static func cluster(_ strokes: [Stroke], padding: CGFloat = 60) -> [[Stroke]] {
         var remaining = strokes
         var clusters: [[Stroke]] = []
 
