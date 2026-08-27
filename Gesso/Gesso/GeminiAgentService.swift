@@ -2,16 +2,18 @@
 //  GeminiAgentService.swift
 //  Gesso
 //
-//  Drives the Gemini generateContent tool-use loop -- the Gemini equivalent
+//  Drives the Gemini Interactions API tool-use loop -- the Gemini equivalent
 //  of ClaudeAgentService. Gives Gemini tools to list/read/write files in the
 //  connected GitHub repo, executes those tool calls locally against
 //  GitHubRepoFileService, and keeps looping until Gemini produces a final
 //  text reply. Calls go straight from the device to
 //  generativelanguage.googleapis.com and api.github.com -- no backend.
 //
-//  `history` entries are Gemini `contents` objects: {"role": "user"/"model",
-//  "parts": [...]}. Parts carry text, inlineData (images), functionCall, or
-//  functionResponse.
+//  Unlike the old generateContent API, conversation state lives server-side:
+//  each call sends only the new turn's input plus `previous_interaction_id`,
+//  rather than replaying the full history. `history` (the AgentService
+//  protocol's opaque round-trip value) is just [["previous_interaction_id": id]],
+//  or [] before the first turn.
 //
 
 import Foundation
@@ -30,10 +32,8 @@ enum GeminiAgentError: LocalizedError {
 }
 
 struct GeminiAgentService: AgentService {
-    private static let model = "gemini-2.5-flash"
-    private static let generateURL = URL(
-        string: "https://generativelanguage.googleapis.com/v1beta/models/\(model):generateContent"
-    )!
+    private static let model = "gemini-3.6-flash"
+    private static let interactionsURL = URL(string: "https://generativelanguage.googleapis.com/v1beta/interactions")!
     private static let maxToolIterations = 12
 
     let apiKey: String
@@ -43,22 +43,29 @@ struct GeminiAgentService: AgentService {
     func send(
         userText: String,
         image: UIImage?,
+        notesText: String?,
         history initialHistory: [[String: Any]],
         onActivity: @escaping (String) -> Void,
         onQuestion: @escaping (_ question: String, _ options: [String]) async -> String
     ) async throws -> (reply: String, history: [[String: Any]]) {
-        var history = initialHistory
-        var userParts: [[String: Any]] = []
+        var previousInteractionId = initialHistory.first?["previous_interaction_id"] as? String
+
+        var contentItems: [[String: Any]] = [["type": "text", "text": userText]]
         if let image, let jpeg = image.jpegData(compressionQuality: 0.7) {
-            userParts.append([
-                "inlineData": [
-                    "mimeType": "image/jpeg",
-                    "data": jpeg.base64EncodedString()
-                ]
+            contentItems.append([
+                "type": "image",
+                "mime_type": "image/jpeg",
+                "data": jpeg.base64EncodedString()
             ])
         }
-        userParts.append(["text": userText])
-        history.append(["role": "user", "parts": userParts])
+        if let notesText, let notesData = notesText.data(using: .utf8) {
+            contentItems.append([
+                "type": "document",
+                "mime_type": "text/plain",
+                "data": notesData.base64EncodedString()
+            ])
+        }
+        var input: [[String: Any]] = [["type": "user_input", "content": contentItems]]
 
         var iterations = 0
         while true {
@@ -67,60 +74,68 @@ struct GeminiAgentService: AgentService {
                 throw GeminiAgentError.tooManySteps
             }
 
-            let responseBody = try await callGenerateContent(history: history)
-            guard let candidates = responseBody["candidates"] as? [[String: Any]],
-                  let firstCandidate = candidates.first,
-                  let content = firstCandidate["content"] as? [String: Any],
-                  let parts = content["parts"] as? [[String: Any]] else {
+            let responseBody = try await callInteractions(input: input, previousInteractionId: previousInteractionId)
+            guard let interactionId = responseBody["id"] as? String,
+                  let steps = responseBody["steps"] as? [[String: Any]] else {
                 throw GeminiAgentError.requestFailed("Unexpected response from Gemini.")
             }
-            history.append(["role": "model", "parts": parts])
+            previousInteractionId = interactionId
 
-            let functionCallParts = parts.filter { $0["functionCall"] != nil }
-            if !functionCallParts.isEmpty {
-                var responseParts: [[String: Any]] = []
-                for part in functionCallParts {
-                    guard let call = part["functionCall"] as? [String: Any],
-                          let name = call["name"] as? String else { continue }
-                    let input = call["args"] as? [String: Any] ?? [:]
+            let functionCalls = steps.filter { ($0["type"] as? String) == "function_call" }
+            if !functionCalls.isEmpty {
+                var resultItems: [[String: Any]] = []
+                for call in functionCalls {
+                    guard let name = call["name"] as? String, let callId = call["id"] as? String else { continue }
+                    let args = call["arguments"] as? [String: Any] ?? [:]
 
                     let result: String
                     if name == "ask_clarifying_question" {
-                        let question = input["question"] as? String ?? "Gemini has a question."
-                        let options = input["options"] as? [String] ?? []
+                        let question = args["question"] as? String ?? "Gemini has a question."
+                        let options = args["options"] as? [String] ?? []
                         result = await onQuestion(question, options)
                     } else {
-                        onActivity(activityDescription(tool: name, input: input))
-                        result = await runTool(name: name, input: input)
+                        onActivity(activityDescription(tool: name, input: args))
+                        result = await runTool(name: name, input: args)
                     }
 
-                    responseParts.append([
-                        "functionResponse": [
-                            "name": name,
-                            "response": ["result": result]
-                        ]
+                    resultItems.append([
+                        "type": "function_result",
+                        "name": name,
+                        "call_id": callId,
+                        "result": [["type": "text", "text": result]]
                     ])
                 }
-                history.append(["role": "user", "parts": responseParts])
+                input = resultItems
                 continue
             }
 
-            let reply = parts.compactMap { $0["text"] as? String }.joined(separator: "\n")
-            return (reply, history)
+            let reply = steps
+                .filter { ($0["type"] as? String) == "model_output" }
+                .compactMap { $0["content"] as? [[String: Any]] }
+                .flatMap { $0 }
+                .filter { ($0["type"] as? String) == "text" }
+                .compactMap { $0["text"] as? String }
+                .joined(separator: "\n")
+
+            return (reply, [["previous_interaction_id": interactionId]])
         }
     }
 
-    private func callGenerateContent(history: [[String: Any]]) async throws -> [String: Any] {
-        var request = URLRequest(url: Self.generateURL)
+    private func callInteractions(input: [[String: Any]], previousInteractionId: String?) async throws -> [String: Any] {
+        var request = URLRequest(url: Self.interactionsURL)
         request.httpMethod = "POST"
         request.setValue(apiKey, forHTTPHeaderField: "x-goog-api-key")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
-        let body: [String: Any] = [
-            "system_instruction": ["parts": [["text": Self.systemPrompt]]],
-            "tools": [["functionDeclarations": Self.toolDefinitions]],
-            "contents": history
+        var body: [String: Any] = [
+            "model": Self.model,
+            "system_instruction": Self.systemPrompt,
+            "tools": Self.toolDefinitions,
+            "input": input
         ]
+        if let previousInteractionId {
+            body["previous_interaction_id"] = previousInteractionId
+        }
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
 
         let (data, response) = try await URLSession.shared.data(for: request)
@@ -189,15 +204,16 @@ struct GeminiAgentService: AgentService {
 
     private static let toolDefinitions: [[String: Any]] = [
         [
+            "type": "function",
             "name": "ask_clarifying_question",
             "description": "Ask the user a clarifying question with a fixed set of short answer choices, when you need them to pick between specific options before continuing. Only use this for genuine multiple-choice decisions, not open-ended questions -- for those, just ask in your normal reply text.",
             "parameters": [
-                "type": "OBJECT",
+                "type": "object",
                 "properties": [
-                    "question": ["type": "STRING"],
+                    "question": ["type": "string"],
                     "options": [
-                        "type": "ARRAY",
-                        "items": ["type": "STRING"],
+                        "type": "array",
+                        "items": ["type": "string"],
                         "description": "2 to 6 short answer choices."
                     ]
                 ],
@@ -205,36 +221,39 @@ struct GeminiAgentService: AgentService {
             ]
         ],
         [
+            "type": "function",
             "name": "list_repository_files",
             "description": "List files and subdirectories at a path in the connected GitHub repository.",
             "parameters": [
-                "type": "OBJECT",
+                "type": "object",
                 "properties": [
-                    "path": ["type": "STRING", "description": "Directory path; empty string for the repository root."]
+                    "path": ["type": "string", "description": "Directory path; empty string for the repository root."]
                 ],
                 "required": [String]()
             ]
         ],
         [
+            "type": "function",
             "name": "read_file",
             "description": "Read the full text contents of a file in the connected GitHub repository.",
             "parameters": [
-                "type": "OBJECT",
+                "type": "object",
                 "properties": [
-                    "path": ["type": "STRING", "description": "File path relative to the repository root."]
+                    "path": ["type": "string", "description": "File path relative to the repository root."]
                 ],
                 "required": ["path"]
             ]
         ],
         [
+            "type": "function",
             "name": "write_file",
             "description": "Create or update a file in the connected GitHub repository and commit the change to the repository's default branch.",
             "parameters": [
-                "type": "OBJECT",
+                "type": "object",
                 "properties": [
-                    "path": ["type": "STRING"],
-                    "content": ["type": "STRING", "description": "The complete new contents of the file."],
-                    "commit_message": ["type": "STRING"]
+                    "path": ["type": "string"],
+                    "content": ["type": "string", "description": "The complete new contents of the file."],
+                    "commit_message": ["type": "string"]
                 ],
                 "required": ["path", "content", "commit_message"]
             ]
