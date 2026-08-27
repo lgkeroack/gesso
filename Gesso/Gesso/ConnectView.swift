@@ -49,7 +49,7 @@ struct ConnectView: View {
                             subtitle: "Access repositories to read and commit changes",
                             systemImage: "chevron.left.forwardslash.chevron.right",
                             isConnected: githubAuth.isConnected,
-                            isBusy: githubAuth.isAuthenticating,
+                            isBusy: githubAuth.isAuthenticating || githubAuth.isVerifying,
                             action: { githubAuth.connect() }
                         )
                     }
@@ -141,6 +141,9 @@ struct ConnectView: View {
         .sheet(isPresented: $showingRepoPicker) {
             RepoPickerView(githubAuth: githubAuth, repoStore: repoStore, isPresented: $showingRepoPicker)
         }
+        .task {
+            await githubAuth.verifyConnection()
+        }
     }
 
     private var isReadyToContinue: Bool {
@@ -172,12 +175,12 @@ struct ConnectView: View {
 
             Spacer()
 
-            if isConnected {
+            if isBusy {
+                ProgressView()
+            } else if isConnected {
                 Image(systemName: "checkmark.seal.fill")
                     .foregroundColor(AppTheme.success)
                     .font(.title2)
-            } else if isBusy {
-                ProgressView()
             } else {
                 Button(buttonLabel, action: action)
                     .buttonStyle(.flat(AppTheme.accent))

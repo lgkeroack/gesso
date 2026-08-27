@@ -26,6 +26,7 @@ enum GitHubAuthError: LocalizedError {
 final class GitHubAuthManager: ObservableObject {
     @Published private(set) var isConnected: Bool
     @Published var isAuthenticating = false
+    @Published private(set) var isVerifying = false
     @Published var errorMessage: String?
 
     /// Shown to the user while they authorize on github.com/login/device.
@@ -75,6 +76,21 @@ final class GitHubAuthManager: ObservableObject {
     func disconnect() {
         KeychainStore.delete(for: Self.accessTokenKey)
         isConnected = false
+    }
+
+    /// Re-checks a stored token against GitHub as soon as there's something
+    /// to check, instead of waiting for the user to notice via a failed repo
+    /// list. Disconnects immediately if GitHub rejects it, so "Connected"
+    /// never lags behind reality.
+    func verifyConnection() async {
+        guard isConnected, let token = accessToken else { return }
+        isVerifying = true
+        defer { isVerifying = false }
+        do {
+            try await GitHubReposService.verifyUser(token: token)
+        } catch {
+            disconnect()
+        }
     }
 
     private func runDeviceFlow() async {
