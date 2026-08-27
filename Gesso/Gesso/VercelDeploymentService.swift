@@ -21,7 +21,7 @@ struct VercelProject {
 enum VercelDeploymentError: LocalizedError {
     case noProjectFound
     case noReadyDeployment
-    case requestFailed(Int)
+    case requestFailed(endpoint: String, code: Int, message: String?)
     case decodingFailed
 
     var errorDescription: String? {
@@ -30,8 +30,9 @@ enum VercelDeploymentError: LocalizedError {
             return "No Vercel project is linked to this repository. Link it in the Vercel dashboard first."
         case .noReadyDeployment:
             return "This Vercel project has no ready deployment for this branch yet."
-        case .requestFailed(let code):
-            return "Vercel request failed (HTTP \(code))."
+        case .requestFailed(let endpoint, let code, let message):
+            let detail = message.map { ": \($0)" } ?? ""
+            return "Vercel request failed fetching \(endpoint) (HTTP \(code))\(detail)."
         case .decodingFailed:
             return "Couldn't understand Vercel's response."
         }
@@ -49,7 +50,7 @@ enum VercelDeploymentService {
         ]
 
         let (data, response) = try await authorizedRequest(url: components.url!, token: token)
-        try validate(response)
+        try validate(response, data: data, endpoint: "projects")
 
         let parsed = try JSONSerialization.jsonObject(with: data)
         let projects: [Any]
@@ -74,11 +75,12 @@ enum VercelDeploymentService {
         components.queryItems = [
             URLQueryItem(name: "projectId", value: project.id),
             URLQueryItem(name: "branch", value: branch),
+            URLQueryItem(name: "target", value: "production"),
             URLQueryItem(name: "limit", value: "10")
         ]
 
         let (data, response) = try await authorizedRequest(url: components.url!, token: token)
-        try validate(response)
+        try validate(response, data: data, endpoint: "deployments")
 
         guard let object = try JSONSerialization.jsonObject(with: data) as? [String: Any],
               let deployments = object["deployments"] as? [[String: Any]] else {
@@ -89,7 +91,7 @@ enum VercelDeploymentService {
             .filter { ($0["readyState"] as? String) == "READY" }
             .sorted { (($0["created"] as? Double) ?? 0) > (($1["created"] as? Double) ?? 0) }
 
-        guard let latest = ready.first, let host = latest["url"] as? String else {
+        guard let latest = ready.first, let host = publicHost(for: latest) else {
             throw VercelDeploymentError.noReadyDeployment
         }
         guard let url = URL(string: "https://\(host)") else {
@@ -98,15 +100,36 @@ enum VercelDeploymentService {
         return url
     }
 
+    /// Prefers a deployment's stable public alias (the project's assigned
+    /// domain, or a custom domain) over its own ephemeral url -- the alias
+    /// is what's actually meant to be public-facing; the per-deployment url
+    /// can differ deploy to deploy and isn't guaranteed to be the canonical
+    /// address people would visit.
+    private static func publicHost(for deployment: [String: Any]) -> String? {
+        if let aliases = deployment["alias"] as? [String], let first = aliases.first {
+            return first
+        }
+        return deployment["url"] as? String
+    }
+
     private static func authorizedRequest(url: URL, token: String) async throws -> (Data, URLResponse) {
         var request = URLRequest(url: url)
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         return try await URLSession.shared.data(for: request)
     }
 
-    private static func validate(_ response: URLResponse) throws {
+    private static func validate(_ response: URLResponse, data: Data, endpoint: String) throws {
         guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
-            throw VercelDeploymentError.requestFailed((response as? HTTPURLResponse)?.statusCode ?? -1)
+            let code = (response as? HTTPURLResponse)?.statusCode ?? -1
+            throw VercelDeploymentError.requestFailed(endpoint: endpoint, code: code, message: decodeErrorMessage(from: data))
         }
+    }
+
+    private static func decodeErrorMessage(from data: Data) -> String? {
+        struct Envelope: Decodable {
+            struct ErrorDetail: Decodable { let message: String }
+            let error: ErrorDetail
+        }
+        return try? JSONDecoder().decode(Envelope.self, from: data).error.message
     }
 }
