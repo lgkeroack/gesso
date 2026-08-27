@@ -9,6 +9,11 @@
 //  the portion of a stroke actually under the eraser, splitting the
 //  remainder into separate strokes as needed.
 //
+//  Touch input goes through PencilAwareTouchView (UIKit) rather than a
+//  SwiftUI gesture, since SwiftUI's DragGesture has no concept of touch type
+//  and can't tell an Apple Pencil touch from a resting palm -- the two would
+//  otherwise fight over the same gesture and produce jumping, erratic lines.
+//
 
 import SwiftUI
 
@@ -42,24 +47,25 @@ struct DrawingCanvas: View {
                 draw(currentStrokePoints, style: annotationStyle, penWidth: CGFloat(penStrokeWidth), in: context)
             }
         }
-        .gesture(
-            DragGesture(minimumDistance: 0)
-                .onChanged { value in
+        .overlay(
+            PencilAwareTouchArea(
+                onChanged: { point in
                     switch activeTool {
                     case .draw:
-                        currentStrokePoints.append(value.location)
+                        currentStrokePoints.append(point)
                     case .erase:
-                        eraseStrokes(near: value.location)
+                        eraseStrokes(near: point)
                     case .none:
                         break
                     }
-                }
-                .onEnded { _ in
+                },
+                onEnded: {
                     if activeTool == .draw, currentStrokePoints.count > 1 {
                         strokes.append(Stroke(points: currentStrokePoints, style: annotationStyle, penWidth: CGFloat(penStrokeWidth)))
                     }
                     currentStrokePoints = []
                 }
+            )
         )
     }
 
@@ -134,5 +140,78 @@ struct DrawingCanvas: View {
         }
         if current.count > 1 { segments.append(current) }
         return segments.map { Stroke(points: $0, style: stroke.style, penWidth: stroke.penWidth) }
+    }
+}
+
+/// Bridges raw UIKit touches into a single-point stream, rejecting palm
+/// touches while the Apple Pencil is in use.
+private struct PencilAwareTouchArea: UIViewRepresentable {
+    var onChanged: (CGPoint) -> Void
+    var onEnded: () -> Void
+
+    func makeUIView(context: Context) -> PencilAwareTouchView {
+        let view = PencilAwareTouchView()
+        view.onChanged = onChanged
+        view.onEnded = onEnded
+        return view
+    }
+
+    func updateUIView(_ uiView: PencilAwareTouchView, context: Context) {
+        uiView.onChanged = onChanged
+        uiView.onEnded = onEnded
+    }
+}
+
+/// Tracks at most one touch at a time: an Apple Pencil touch always takes
+/// over from whatever else is active, and once a pencil touch is down, any
+/// concurrent finger touch (a resting palm) is ignored outright rather than
+/// competing with it for the same stroke.
+private final class PencilAwareTouchView: UIView {
+    var onChanged: ((CGPoint) -> Void)?
+    var onEnded: (() -> Void)?
+
+    private weak var activeTouch: UITouch?
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        isMultipleTouchEnabled = true
+        backgroundColor = .clear
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if let pencilTouch = touches.first(where: { $0.type == .pencil }) {
+            activeTouch = pencilTouch
+        } else if activeTouch == nil, let touch = touches.first {
+            activeTouch = touch
+        }
+        report()
+    }
+
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let activeTouch, touches.contains(activeTouch) else { return }
+        report()
+    }
+
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        finish(touches)
+    }
+
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        finish(touches)
+    }
+
+    private func finish(_ touches: Set<UITouch>) {
+        guard let activeTouch, touches.contains(activeTouch) else { return }
+        self.activeTouch = nil
+        onEnded?()
+    }
+
+    private func report() {
+        guard let activeTouch else { return }
+        onChanged?(activeTouch.location(in: self))
     }
 }
