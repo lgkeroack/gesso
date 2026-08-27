@@ -42,6 +42,7 @@ struct ClaudeAgentService {
     func send(
         userText: String,
         image: UIImage?,
+        notesText: String?,
         history initialHistory: [[String: Any]],
         onActivity: @escaping (String) -> Void,
         onQuestion: @escaping (_ question: String, _ options: [String]) async -> String
@@ -56,6 +57,17 @@ struct ClaudeAgentService {
                     "media_type": "image/jpeg",
                     "data": jpeg.base64EncodedString()
                 ]
+            ])
+        }
+        if let notesText {
+            userContent.append([
+                "type": "document",
+                "source": [
+                    "type": "text",
+                    "media_type": "text/plain",
+                    "data": notesText
+                ],
+                "title": "Annotation Notes.txt"
             ])
         }
         userContent.append(["type": "text", "text": userText])

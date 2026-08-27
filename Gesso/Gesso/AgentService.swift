@@ -13,9 +13,13 @@ import Foundation
 import UIKit
 
 protocol AgentService {
+    /// `notesText`, when present, is attached as a separate plain-text file
+    /// rather than embedded in `userText` -- it's transcribed handwriting,
+    /// not part of the instruction itself.
     func send(
         userText: String,
         image: UIImage?,
+        notesText: String?,
         history: [[String: Any]],
         onActivity: @escaping (String) -> Void,
         onQuestion: @escaping (_ question: String, _ options: [String]) async -> String
