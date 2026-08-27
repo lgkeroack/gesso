@@ -6,6 +6,14 @@
 //  the WebView within Gesso's own window. Long-press the pen to switch
 //  between pen and highlighter styles.
 //
+//  Pen and eraser are independent, always-visible buttons -- each just
+//  selects that tool outright, from any state, so switching between them
+//  never requires detouring through Done. Done/Submit is a separate slot
+//  that appears alongside them (not in place of them), so leaving a tool
+//  or reaching Submit never strands you without a way back into editing.
+//  Tapping a tool button that's already active opens its settings popover
+//  (size/opacity for pen, size for eraser) instead of doing nothing.
+//
 
 import SwiftUI
 
@@ -16,17 +24,26 @@ struct FloatingToolbar: View {
     var onSubmit: () -> Void
     var onGear: () -> Void
 
+    @AppStorage("penStrokeWidth") private var penStrokeWidth: Double = 3.0
+    @AppStorage("penOpacity") private var penOpacity: Double = 1.0
+    @AppStorage("eraserRadius") private var eraserRadius: Double = 20.0
+
     @GestureState private var dragOffset: CGSize = .zero
     @State private var accumulatedOffset: CGSize = .zero
     @State private var showingStylePicker = false
+    @State private var showingPenSettings = false
+    @State private var showingEraserSettings = false
 
     var body: some View {
         VStack(spacing: 10) {
             gripHandle
 
-            primaryToolButton
-            toolButton(systemImage: "eraser", isActive: activeTool == .erase, tint: AppTheme.danger) {
-                activeTool = activeTool == .erase ? .none : .erase
+            penButton
+            eraserButton
+            if activeTool != .none {
+                doneButton
+            } else if hasMarkup {
+                submitButton
             }
             toolButton(systemImage: "gearshape", isActive: false, tint: AppTheme.accent, action: onGear)
         }
@@ -45,19 +62,8 @@ struct FloatingToolbar: View {
         )
     }
 
-    @ViewBuilder
-    private var primaryToolButton: some View {
-        if activeTool != .none {
-            doneButton
-        } else if hasMarkup {
-            submitButton
-        } else {
-            penButton
-        }
-    }
-
-    /// Just exits the active tool -- editing again after this always shows
-    /// Done again, never Submit, until the user explicitly finalizes.
+    /// Just exits the active tool -- Pen/Eraser stay visible alongside this,
+    /// so leaving a tool never strands the user without a way back in.
     private var doneButton: some View {
         Button(action: { activeTool = .none }) {
             Text("Done")
@@ -70,7 +76,8 @@ struct FloatingToolbar: View {
     }
 
     /// Only shown once markup exists and no tool is active -- this is what
-    /// actually sends the annotation to the AI.
+    /// actually sends the annotation to the AI. Pen/Eraser stay visible
+    /// alongside this too, so it's never a dead end.
     private var submitButton: some View {
         Button(action: onSubmit) {
             Text("Submit")
@@ -82,9 +89,17 @@ struct FloatingToolbar: View {
         .buttonStyle(.plain)
     }
 
+    /// Always visible; tapping selects draw mode outright, from any state
+    /// (including straight from erasing) -- no toggle-off, no detour through
+    /// Done required. Tapping again while already active opens the size/
+    /// opacity popover instead of doing nothing.
     private var penButton: some View {
         Button {
-            activeTool = activeTool == .draw ? .none : .draw
+            if activeTool == .draw {
+                showingPenSettings = true
+            } else {
+                activeTool = .draw
+            }
         } label: {
             Image(systemName: annotationStyle == .highlighter ? "highlighter" : "pencil")
                 .font(.title3)
@@ -105,6 +120,59 @@ struct FloatingToolbar: View {
             .padding(8)
             .presentationCompactAdaptation(.popover)
         }
+        .popover(isPresented: $showingPenSettings) {
+            penSettingsPanel
+        }
+    }
+
+    private var penSettingsPanel: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Size").font(.caption).foregroundColor(AppTheme.ink.opacity(0.6))
+                Slider(value: $penStrokeWidth, in: 1...8, step: 1)
+            }
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Opacity").font(.caption).foregroundColor(AppTheme.ink.opacity(0.6))
+                Slider(value: $penOpacity, in: 0.2...1.0)
+            }
+        }
+        .padding()
+        .frame(width: 220)
+        .presentationCompactAdaptation(.popover)
+    }
+
+    /// Always visible; tapping selects erase mode outright, from any state
+    /// (including straight from drawing). Tapping again while already
+    /// active opens the size popover instead of doing nothing.
+    private var eraserButton: some View {
+        Button {
+            if activeTool == .erase {
+                showingEraserSettings = true
+            } else {
+                activeTool = .erase
+            }
+        } label: {
+            Image(systemName: "eraser")
+                .font(.title3)
+                .foregroundColor(activeTool == .erase ? .white : AppTheme.danger)
+                .frame(width: 36, height: 36)
+                .background(activeTool == .erase ? AppTheme.danger : Color.clear)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+        .buttonStyle(.plain)
+        .popover(isPresented: $showingEraserSettings) {
+            eraserSettingsPanel
+        }
+    }
+
+    private var eraserSettingsPanel: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Eraser Size").font(.caption).foregroundColor(AppTheme.ink.opacity(0.6))
+            Slider(value: $eraserRadius, in: 10...50)
+        }
+        .padding()
+        .frame(width: 220)
+        .presentationCompactAdaptation(.popover)
     }
 
     private func styleOption(title: String, systemImage: String, style: AnnotationStyle) -> some View {
