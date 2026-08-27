@@ -10,8 +10,14 @@
 
 import SwiftUI
 
-enum AnnotationCaptureError: Error {
+enum AnnotationCaptureError: LocalizedError {
     case screenshotFailed
+
+    var errorDescription: String? {
+        switch self {
+        case .screenshotFailed: return "Couldn't capture a screenshot of the page."
+        }
+    }
 }
 
 struct MainView: View {
@@ -126,6 +132,11 @@ struct MainView: View {
                     .font(.caption)
                     .foregroundColor(AppTheme.danger)
             }
+            if let loadError = webViewStore.loadError {
+                Text("Couldn't load page: \(loadError)")
+                    .font(.caption)
+                    .foregroundColor(AppTheme.danger)
+            }
         }
         .padding(8)
         .background(AppTheme.chrome)
@@ -202,10 +213,16 @@ struct MainView: View {
             let textA = AnnotationCompositor.composeNotesText(recognition.recognizedNotes)
             isProcessingAnnotations = false
 
-            guard let repo = repoStore.selectedRepo,
-                  let githubToken = githubAuth.accessToken,
-                  let agent = buildAgent(repo: repo, githubToken: githubToken) else {
-                captureError = "Missing connection details."
+            guard let repo = repoStore.selectedRepo else {
+                captureError = "No repository selected."
+                return
+            }
+            guard let githubToken = githubAuth.accessToken else {
+                captureError = "Not connected to GitHub."
+                return
+            }
+            guard let agent = buildAgent(repo: repo, githubToken: githubToken) else {
+                captureError = "No AI provider connected. Connect Claude or Gemini in Settings."
                 return
             }
             showingChat = true

@@ -17,13 +17,15 @@ struct GitHubFileEntry {
 
 enum GitHubRepoFileError: LocalizedError {
     case notFound
-    case requestFailed(Int)
+    case requestFailed(operation: String, path: String, code: Int, message: String?)
     case decodingFailed
 
     var errorDescription: String? {
         switch self {
         case .notFound: return "File not found."
-        case .requestFailed(let code): return "GitHub request failed (HTTP \(code))."
+        case .requestFailed(let operation, let path, let code, let message):
+            let detail = message.map { ": \($0)" } ?? ""
+            return "GitHub \(operation) failed for \(path) (HTTP \(code))\(detail)."
         case .decodingFailed: return "Couldn't decode GitHub's response."
         }
     }
@@ -32,7 +34,7 @@ enum GitHubRepoFileError: LocalizedError {
 enum GitHubRepoFileService {
     static func listFiles(repo: GitHubRepository, token: String, path: String) async throws -> [GitHubFileEntry] {
         let (data, response) = try await request(url: contentsURL(repo: repo, path: path), token: token)
-        try validate(response)
+        try validate(response, data: data, operation: "listing files", path: path)
 
         if let array = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] {
             return array.compactMap { entry in
@@ -53,7 +55,7 @@ enum GitHubRepoFileService {
 
     static func readFile(repo: GitHubRepository, token: String, path: String) async throws -> String {
         let (data, response) = try await request(url: contentsURL(repo: repo, path: path), token: token)
-        try validate(response)
+        try validate(response, data: data, operation: "reading file", path: path)
         guard let object = try JSONSerialization.jsonObject(with: data) as? [String: Any],
               let base64 = (object["content"] as? String)?.replacingOccurrences(of: "\n", with: ""),
               let decoded = Data(base64Encoded: base64),
@@ -87,7 +89,7 @@ enum GitHubRepoFileService {
         applyHeaders(to: &urlRequest, token: token)
 
         let (data, response) = try await URLSession.shared.data(for: urlRequest)
-        try validate(response)
+        try validate(response, data: data, operation: "writing file", path: path)
         guard let object = try JSONSerialization.jsonObject(with: data) as? [String: Any],
               let commit = object["commit"] as? [String: Any],
               let sha = commit["sha"] as? String else {
@@ -122,9 +124,20 @@ enum GitHubRepoFileService {
         request.setValue("2022-11-28", forHTTPHeaderField: "X-GitHub-Api-Version")
     }
 
-    private static func validate(_ response: URLResponse) throws {
-        guard let http = response as? HTTPURLResponse else { throw GitHubRepoFileError.requestFailed(-1) }
+    private static func validate(_ response: URLResponse, data: Data, operation: String, path: String) throws {
+        guard let http = response as? HTTPURLResponse else {
+            throw GitHubRepoFileError.requestFailed(operation: operation, path: path, code: -1, message: nil)
+        }
         if http.statusCode == 404 { throw GitHubRepoFileError.notFound }
-        guard (200...299).contains(http.statusCode) else { throw GitHubRepoFileError.requestFailed(http.statusCode) }
+        guard (200...299).contains(http.statusCode) else {
+            throw GitHubRepoFileError.requestFailed(
+                operation: operation, path: path, code: http.statusCode, message: decodeErrorMessage(from: data)
+            )
+        }
+    }
+
+    private static func decodeErrorMessage(from data: Data) -> String? {
+        struct Envelope: Decodable { let message: String }
+        return try? JSONDecoder().decode(Envelope.self, from: data).message
     }
 }

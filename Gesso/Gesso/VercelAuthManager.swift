@@ -42,7 +42,7 @@ final class VercelAuthManager: ObservableObject {
         request.setValue("Bearer \(trimmed)", forHTTPHeaderField: "Authorization")
 
         do {
-            let (_, response) = try await URLSession.shared.data(for: request)
+            let (data, response) = try await URLSession.shared.data(for: request)
             guard let http = response as? HTTPURLResponse else {
                 errorMessage = "No response from Vercel."
                 return
@@ -51,7 +51,7 @@ final class VercelAuthManager: ObservableObject {
                 KeychainStore.save(trimmed, for: Self.tokenKey)
                 isConnected = true
             } else {
-                errorMessage = "Vercel rejected this token (HTTP \(http.statusCode))."
+                errorMessage = decodeErrorMessage(from: data) ?? "Vercel rejected this token (HTTP \(http.statusCode))."
             }
         } catch {
             errorMessage = error.localizedDescription
@@ -61,5 +61,13 @@ final class VercelAuthManager: ObservableObject {
     func disconnect() {
         KeychainStore.delete(for: Self.tokenKey)
         isConnected = false
+    }
+
+    private func decodeErrorMessage(from data: Data) -> String? {
+        struct Envelope: Decodable {
+            struct ErrorDetail: Decodable { let message: String }
+            let error: ErrorDetail
+        }
+        return try? JSONDecoder().decode(Envelope.self, from: data).error.message
     }
 }

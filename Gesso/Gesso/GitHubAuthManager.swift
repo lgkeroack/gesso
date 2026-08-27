@@ -131,7 +131,10 @@ final class GitHubAuthManager: ObservableObject {
 
         let (data, response) = try await URLSession.shared.data(for: request)
         guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
-            throw GitHubAuthError.requestFailed("Couldn't start GitHub device authorization.")
+            let code = (response as? HTTPURLResponse)?.statusCode ?? -1
+            let message = (try? JSONDecoder().decode(DeviceTokenResponse.self, from: data))?.errorDescription
+            let detail = message.map { ": \($0)" } ?? "."
+            throw GitHubAuthError.requestFailed("Couldn't start GitHub device authorization (HTTP \(code))\(detail)")
         }
         return try JSONDecoder().decode(DeviceCodeResponse.self, from: data)
     }
