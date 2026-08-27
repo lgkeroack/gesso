@@ -12,7 +12,8 @@ import SwiftUI
 struct FloatingToolbar: View {
     @Binding var activeTool: ToolMode
     @Binding var annotationStyle: AnnotationStyle
-    var onDone: () -> Void
+    var hasMarkup: Bool
+    var onSubmit: () -> Void
     var onGear: () -> Void
 
     @GestureState private var dragOffset: CGSize = .zero
@@ -46,18 +47,35 @@ struct FloatingToolbar: View {
 
     @ViewBuilder
     private var primaryToolButton: some View {
-        if activeTool == .none {
-            penButton
-        } else {
+        if activeTool != .none {
             doneButton
+        } else if hasMarkup {
+            submitButton
+        } else {
+            penButton
         }
     }
 
+    /// Just exits the active tool -- editing again after this always shows
+    /// Done again, never Submit, until the user explicitly finalizes.
     private var doneButton: some View {
-        Button(action: onDone) {
+        Button(action: { activeTool = .none }) {
             Text("Done")
                 .font(.subheadline.weight(.semibold))
                 .foregroundColor(AppTheme.success)
+                .padding(.horizontal, 8)
+                .frame(height: 36)
+        }
+        .buttonStyle(.plain)
+    }
+
+    /// Only shown once markup exists and no tool is active -- this is what
+    /// actually sends the annotation to the AI.
+    private var submitButton: some View {
+        Button(action: onSubmit) {
+            Text("Submit")
+                .font(.subheadline.weight(.semibold))
+                .foregroundColor(AppTheme.accent)
                 .padding(.horizontal, 8)
                 .frame(height: 36)
         }
@@ -129,5 +147,5 @@ struct FloatingToolbar: View {
 }
 
 #Preview {
-    FloatingToolbar(activeTool: .constant(.none), annotationStyle: .constant(.pen), onDone: {}, onGear: {})
+    FloatingToolbar(activeTool: .constant(.none), annotationStyle: .constant(.pen), hasMarkup: false, onSubmit: {}, onGear: {})
 }

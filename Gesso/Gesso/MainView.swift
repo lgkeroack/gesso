@@ -51,7 +51,8 @@ struct MainView: View {
             FloatingToolbar(
                 activeTool: $activeTool,
                 annotationStyle: $annotationStyle,
-                onDone: finishAnnotating,
+                hasMarkup: !strokes.isEmpty,
+                onSubmit: finishAnnotating,
                 onGear: { showingSettings = true }
             )
             .padding(.top, 60)

@@ -23,6 +23,8 @@ struct SettingsView: View {
     @State private var showingVercelTokenSheet = false
     @State private var showingRepoPicker = false
 
+    @AppStorage("penStrokeWidth") private var penStrokeWidth: Double = 3.0
+
     var body: some View {
         NavigationStack {
             Form {
@@ -137,6 +139,23 @@ struct SettingsView: View {
                     .disabled(!githubAuth.isConnected)
                 } header: {
                     Text("Repository").font(.sectionHeadline).foregroundColor(AppTheme.ink)
+                }
+                .listRowBackground(AppTheme.surface)
+
+                Section {
+                    HStack {
+                        Text("Pen Width")
+                            .foregroundColor(AppTheme.ink)
+                        Spacer()
+                        Text("\(Int(penStrokeWidth))pt")
+                            .foregroundColor(AppTheme.ink.opacity(0.5))
+                    }
+                    Slider(value: $penStrokeWidth, in: 1...8, step: 1)
+                        .tint(AppTheme.accent)
+                } header: {
+                    Text("Drawing").font(.sectionHeadline).foregroundColor(AppTheme.ink)
+                } footer: {
+                    Text("Width of the calligraphy pen used for markup.")
                 }
                 .listRowBackground(AppTheme.surface)
             }
