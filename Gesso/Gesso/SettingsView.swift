@@ -24,6 +24,8 @@ struct SettingsView: View {
     @State private var showingRepoPicker = false
 
     @AppStorage("penStrokeWidth") private var penStrokeWidth: Double = 3.0
+    @AppStorage("penOpacity") private var penOpacity: Double = 1.0
+    @AppStorage("eraserRadius") private var eraserRadius: Double = 20.0
 
     var body: some View {
         NavigationStack {
@@ -152,10 +154,30 @@ struct SettingsView: View {
                     }
                     Slider(value: $penStrokeWidth, in: 1...8, step: 1)
                         .tint(AppTheme.accent)
+
+                    HStack {
+                        Text("Pen Opacity")
+                            .foregroundColor(AppTheme.ink)
+                        Spacer()
+                        Text("\(Int(penOpacity * 100))%")
+                            .foregroundColor(AppTheme.ink.opacity(0.5))
+                    }
+                    Slider(value: $penOpacity, in: 0.2...1.0)
+                        .tint(AppTheme.accent)
+
+                    HStack {
+                        Text("Eraser Size")
+                            .foregroundColor(AppTheme.ink)
+                        Spacer()
+                        Text("\(Int(eraserRadius))pt")
+                            .foregroundColor(AppTheme.ink.opacity(0.5))
+                    }
+                    Slider(value: $eraserRadius, in: 10...50)
+                        .tint(AppTheme.accent)
                 } header: {
                     Text("Drawing").font(.sectionHeadline).foregroundColor(AppTheme.ink)
                 } footer: {
-                    Text("Width of the calligraphy pen used for markup.")
+                    Text("Width and opacity of the calligraphy pen, and the eraser's touch radius. Also adjustable from the floating toolbar by tapping the active tool again.")
                 }
                 .listRowBackground(AppTheme.surface)
             }

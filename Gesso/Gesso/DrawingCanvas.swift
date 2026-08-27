@@ -22,6 +22,7 @@ struct Stroke: Identifiable, Equatable {
     var points: [CGPoint]
     var style: AnnotationStyle
     var penWidth: CGFloat = 3
+    var penOpacity: CGFloat = 1
 }
 
 struct DrawingCanvas: View {
@@ -30,6 +31,8 @@ struct DrawingCanvas: View {
     var annotationStyle: AnnotationStyle
 
     @AppStorage("penStrokeWidth") private var penStrokeWidth: Double = 3.0
+    @AppStorage("penOpacity") private var penOpacity: Double = 1.0
+    @AppStorage("eraserRadius") private var eraserRadius: Double = 20.0
     @State private var currentStrokePoints: [CGPoint] = []
 
     /// Angle the flat nib is held at; strokes parallel to this read thin,
@@ -41,10 +44,10 @@ struct DrawingCanvas: View {
     var body: some View {
         Canvas { context, _ in
             for stroke in strokes {
-                draw(stroke.points, style: stroke.style, penWidth: stroke.penWidth, in: context)
+                draw(stroke.points, style: stroke.style, penWidth: stroke.penWidth, penOpacity: stroke.penOpacity, in: context)
             }
             if activeTool == .draw, currentStrokePoints.count > 1 {
-                draw(currentStrokePoints, style: annotationStyle, penWidth: CGFloat(penStrokeWidth), in: context)
+                draw(currentStrokePoints, style: annotationStyle, penWidth: CGFloat(penStrokeWidth), penOpacity: CGFloat(penOpacity), in: context)
             }
         }
         .overlay(
@@ -54,14 +57,19 @@ struct DrawingCanvas: View {
                     case .draw:
                         currentStrokePoints.append(point)
                     case .erase:
-                        eraseStrokes(near: point)
+                        eraseStrokes(near: point, radius: CGFloat(eraserRadius))
                     case .none:
                         break
                     }
                 },
                 onEnded: {
                     if activeTool == .draw, currentStrokePoints.count > 1 {
-                        strokes.append(Stroke(points: currentStrokePoints, style: annotationStyle, penWidth: CGFloat(penStrokeWidth)))
+                        strokes.append(Stroke(
+                            points: currentStrokePoints,
+                            style: annotationStyle,
+                            penWidth: CGFloat(penStrokeWidth),
+                            penOpacity: CGFloat(penOpacity)
+                        ))
                     }
                     currentStrokePoints = []
                 }
@@ -69,10 +77,10 @@ struct DrawingCanvas: View {
         )
     }
 
-    private func draw(_ points: [CGPoint], style: AnnotationStyle, penWidth: CGFloat, in context: GraphicsContext) {
+    private func draw(_ points: [CGPoint], style: AnnotationStyle, penWidth: CGFloat, penOpacity: CGFloat, in context: GraphicsContext) {
         switch style {
         case .pen:
-            drawCalligraphy(points, baseWidth: penWidth, in: context)
+            drawCalligraphy(points, baseWidth: penWidth, opacity: penOpacity, in: context)
         case .highlighter:
             context.stroke(
                 path(for: points),
@@ -84,7 +92,7 @@ struct DrawingCanvas: View {
 
     /// Strokes each segment individually so its width can vary with the
     /// segment's direction relative to the fixed nib angle.
-    private func drawCalligraphy(_ points: [CGPoint], baseWidth: CGFloat, in context: GraphicsContext) {
+    private func drawCalligraphy(_ points: [CGPoint], baseWidth: CGFloat, opacity: CGFloat, in context: GraphicsContext) {
         guard points.count > 1 else { return }
         for i in 1..<points.count {
             let p0 = points[i - 1]
@@ -100,7 +108,7 @@ struct DrawingCanvas: View {
             segment.addLine(to: p1)
             context.stroke(
                 segment,
-                with: .color(.red),
+                with: .color(.red.opacity(opacity)),
                 style: StrokeStyle(lineWidth: baseWidth * factor, lineCap: .round, lineJoin: .round)
             )
         }
@@ -116,7 +124,7 @@ struct DrawingCanvas: View {
         return path
     }
 
-    private func eraseStrokes(near point: CGPoint, radius: CGFloat = 20) {
+    private func eraseStrokes(near point: CGPoint, radius: CGFloat) {
         strokes = strokes.flatMap { stroke -> [Stroke] in
             let touchesStroke = stroke.points.contains { hypot($0.x - point.x, $0.y - point.y) < radius }
             guard touchesStroke else { return [stroke] }
@@ -139,7 +147,7 @@ struct DrawingCanvas: View {
             }
         }
         if current.count > 1 { segments.append(current) }
-        return segments.map { Stroke(points: $0, style: stroke.style, penWidth: stroke.penWidth) }
+        return segments.map { Stroke(points: $0, style: stroke.style, penWidth: stroke.penWidth, penOpacity: stroke.penOpacity) }
     }
 }
 
