@@ -7,8 +7,17 @@
 //  on top, confined to Gesso's own window. Tapping Done runs handwriting
 //  recognition on the pen strokes and produces Image A / Text A in memory.
 //
+//  Markup is kept per-page (keyed by full URL): navigating away from a page
+//  that has markup prompts to keep or discard it, and a screenshot is
+//  captured for a kept page right before it unloads (rather than by
+//  silently re-visiting old pages later, which could show different
+//  content than what was actually marked up). Submitting sends one
+//  screenshot per page that has markup -- the current page plus any saved
+//  ones -- in a single round.
+//
 
 import SwiftUI
+import WebKit
 
 enum AnnotationCaptureError: LocalizedError {
     case screenshotFailed
@@ -18,6 +27,15 @@ enum AnnotationCaptureError: LocalizedError {
         case .screenshotFailed: return "Couldn't capture a screenshot of the page."
         }
     }
+}
+
+/// A page's saved markup plus the full-page screenshot captured at the
+/// moment the user chose to keep it (not re-captured later, since
+/// re-visiting the live page could show different content than what was
+/// actually marked up).
+private struct PageAnnotation {
+    var strokes: [Stroke]
+    var screenshot: UIImage
 }
 
 struct MainView: View {
@@ -37,6 +55,11 @@ struct MainView: View {
     @State private var strokes: [Stroke] = []
     @State private var showingSettings = false
 
+    /// Pages other than the current one that have markup saved on them,
+    /// keyed by full URL.
+    @State private var savedPages: [String: PageAnnotation] = [:]
+    @State private var currentPageKey: String?
+
     @State private var isProcessingAnnotations = false
     @State private var captureError: String?
     @State private var showingChat = false
@@ -49,15 +72,20 @@ struct MainView: View {
                 addressBar
                 ZStack {
                     WebViewRepresentable(webView: webViewStore.webView)
-                    DrawingCanvas(strokes: $strokes, activeTool: $activeTool, annotationStyle: annotationStyle)
-                        .allowsHitTesting(activeTool != .none)
+                    DrawingCanvas(
+                        strokes: $strokes,
+                        activeTool: $activeTool,
+                        annotationStyle: annotationStyle,
+                        scrollOffset: webViewStore.scrollOffset
+                    )
+                    .allowsHitTesting(activeTool != .none)
                 }
             }
 
             FloatingToolbar(
                 activeTool: $activeTool,
                 annotationStyle: $annotationStyle,
-                hasMarkup: !strokes.isEmpty,
+                hasMarkup: !strokes.isEmpty || !savedPages.isEmpty,
                 onSubmit: finishAnnotating,
                 onGear: { showingSettings = true }
             )
@@ -92,6 +120,21 @@ struct MainView: View {
         }
         .onChange(of: repoStore.selectedRepo) { _, _ in
             startFreshRound()
+        }
+        .onChange(of: strokes) { _, newValue in
+            webViewStore.currentPageHasMarkup = !newValue.isEmpty
+        }
+        .onChange(of: webViewStore.currentURL) { _, newURL in
+            handlePageChange(to: newURL)
+        }
+        .alert(
+            "Keep markup on this page?",
+            isPresented: Binding(get: { webViewStore.pendingNavigationURL != nil }, set: { _ in })
+        ) {
+            Button("Keep") { Task { await keepCurrentPageAndProceed() } }
+            Button("Discard", role: .destructive) { discardCurrentPageAndProceed() }
+        } message: {
+            Text("You've marked up this page. Keep it so it's still here if you come back, or discard it?")
         }
         .alert("Couldn't process annotations", isPresented: .constant(captureError != nil), presenting: captureError) { _ in
             Button("OK") { captureError = nil }
@@ -189,30 +232,48 @@ struct MainView: View {
         webViewStore.webView.load(URLRequest(url: url))
     }
 
+    /// Sends one screenshot per marked-up page in a single round -- the
+    /// current page (captured fresh) plus any pages saved earlier via the
+    /// keep/discard prompt.
     private func finishAnnotating() {
         activeTool = .none
-        let strokesSnapshot = strokes
+        let currentStrokesSnapshot = strokes
+        let currentLabel = currentPageKey ?? "current page"
+        let otherPages = savedPages
 
         Task {
             isProcessingAnnotations = true
-            let screenshot: UIImage
-            let recognition: AnnotationRecognitionResult
-            do {
-                screenshot = try await captureScreenshot()
-                recognition = await HandwritingRecognizer.process(strokes: strokesSnapshot)
-            } catch {
-                captureError = error.localizedDescription
-                isProcessingAnnotations = false
-                return
+
+            var images: [UIImage] = []
+            var notesSections: [String] = []
+
+            if !currentStrokesSnapshot.isEmpty {
+                do {
+                    let currentScreenshot = try await captureScreenshot()
+                    let (image, notes) = await composePage(
+                        strokes: currentStrokesSnapshot, screenshot: currentScreenshot, label: currentLabel
+                    )
+                    images.append(image)
+                    notesSections.append(notes)
+                } catch {
+                    captureError = error.localizedDescription
+                    isProcessingAnnotations = false
+                    return
+                }
             }
-            let imageA = AnnotationCompositor.composeImage(
-                base: screenshot,
-                markupStrokes: recognition.markupStrokes,
-                textPlacements: recognition.textPlacements
-            )
-            let textA = AnnotationCompositor.composeNotesText(recognition.recognizedNotes)
+
+            for (label, page) in otherPages {
+                let (image, notes) = await composePage(strokes: page.strokes, screenshot: page.screenshot, label: label)
+                images.append(image)
+                notesSections.append(notes)
+            }
+
             isProcessingAnnotations = false
 
+            guard !images.isEmpty else {
+                captureError = "No markup to submit."
+                return
+            }
             guard let repo = repoStore.selectedRepo else {
                 captureError = "No repository selected."
                 return
@@ -226,8 +287,22 @@ struct MainView: View {
                 return
             }
             showingChat = true
-            await conversation.send(image: imageA, notesText: textA, agent: agent)
+            await conversation.send(images: images, notesText: notesSections.joined(separator: "\n\n"), agent: agent)
         }
+    }
+
+    /// Runs handwriting recognition for one page's strokes and composites
+    /// its markup onto that page's screenshot, returning the finished image
+    /// plus a labeled notes section identifying which page it's from.
+    private func composePage(strokes: [Stroke], screenshot: UIImage, label: String) async -> (image: UIImage, notes: String) {
+        let recognition = await HandwritingRecognizer.process(strokes: strokes)
+        let image = AnnotationCompositor.composeImage(
+            base: screenshot,
+            markupStrokes: recognition.markupStrokes,
+            textPlacements: recognition.textPlacements
+        )
+        let notes = AnnotationCompositor.composeNotesText(recognition.recognizedNotes)
+        return (image, "=== Page: \(label) ===\n\(notes)")
     }
 
     private var providerDisplayName: String {
@@ -264,13 +339,53 @@ struct MainView: View {
         showingChat = false
         conversation.reset()
         strokes = []
+        savedPages = [:]
         activeTool = .none
         webViewStore.webView.reload()
     }
 
+    /// A navigation just finished -- swap in whatever markup was saved for
+    /// this page, or start blank if it's never been visited/kept.
+    private func handlePageChange(to url: URL?) {
+        currentPageKey = url?.absoluteString
+        strokes = currentPageKey.flatMap { savedPages[$0]?.strokes } ?? []
+    }
+
+    /// Discards the departing page's markup (including anything saved for
+    /// it from an earlier visit) and lets the held-up navigation proceed.
+    private func discardCurrentPageAndProceed() {
+        if let currentPageKey {
+            savedPages.removeValue(forKey: currentPageKey)
+        }
+        webViewStore.allowPendingNavigation()
+    }
+
+    /// Captures the departing page's screenshot while it's still loaded,
+    /// saves it alongside its strokes, then lets the held-up navigation
+    /// proceed.
+    private func keepCurrentPageAndProceed() async {
+        guard let currentPageKey else {
+            webViewStore.allowPendingNavigation()
+            return
+        }
+        do {
+            let screenshot = try await captureScreenshot()
+            savedPages[currentPageKey] = PageAnnotation(strokes: strokes, screenshot: screenshot)
+        } catch {
+            captureError = error.localizedDescription
+        }
+        webViewStore.allowPendingNavigation()
+    }
+
+    /// Captures the whole scrollable page, not just the visible viewport, so
+    /// markup drawn anywhere on the page (which stays pinned to its content
+    /// position when scrolling) lines up correctly against the full image.
     private func captureScreenshot() async throws -> UIImage {
-        try await withCheckedThrowingContinuation { continuation in
-            webViewStore.webView.takeSnapshot(with: nil) { image, error in
+        let webView = webViewStore.webView
+        let config = WKSnapshotConfiguration()
+        config.rect = CGRect(origin: .zero, size: webView.scrollView.contentSize)
+        return try await withCheckedThrowingContinuation { continuation in
+            webView.takeSnapshot(with: config) { image, error in
                 if let image {
                     continuation.resume(returning: image)
                 } else {

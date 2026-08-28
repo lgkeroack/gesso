@@ -17,7 +17,7 @@ struct ChatMessage: Identifiable {
     let id = UUID()
     let role: Role
     var text: String
-    let image: UIImage?
+    let images: [UIImage]
     var options: [String]? = nil
     var selectedOption: String? = nil
 }

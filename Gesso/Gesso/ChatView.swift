@@ -85,7 +85,7 @@ struct ChatView: View {
         switch message.role {
         case .user:
             VStack(alignment: .trailing, spacing: 6) {
-                if let image = message.image {
+                ForEach(Array(message.images.enumerated()), id: \.offset) { _, image in
                     Image(uiImage: image)
                         .resizable()
                         .scaledToFit()

@@ -13,12 +13,14 @@ import Foundation
 import UIKit
 
 protocol AgentService {
-    /// `notesText`, when present, is attached as a separate plain-text file
-    /// rather than embedded in `userText` -- it's transcribed handwriting,
-    /// not part of the instruction itself.
+    /// `images` is one screenshot per marked-up page, in the same order the
+    /// per-page headers appear in `notesText`. `notesText`, when present, is
+    /// attached as a separate plain-text file rather than embedded in
+    /// `userText` -- it's transcribed handwriting, not part of the
+    /// instruction itself.
     func send(
         userText: String,
-        image: UIImage?,
+        images: [UIImage],
         notesText: String?,
         history: [[String: Any]],
         onActivity: @escaping (String) -> Void,

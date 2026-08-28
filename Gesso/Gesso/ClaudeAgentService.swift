@@ -41,7 +41,7 @@ struct ClaudeAgentService {
     /// actor-isolated var can't be held `inout` across an `async` suspension.)
     func send(
         userText: String,
-        image: UIImage?,
+        images: [UIImage],
         notesText: String?,
         history initialHistory: [[String: Any]],
         onActivity: @escaping (String) -> Void,
@@ -49,7 +49,8 @@ struct ClaudeAgentService {
     ) async throws -> (reply: String, history: [[String: Any]]) {
         var history = initialHistory
         var userContent: [[String: Any]] = []
-        if let image, let jpeg = image.jpegData(compressionQuality: 0.7) {
+        for image in images {
+            guard let jpeg = image.jpegData(compressionQuality: 0.7) else { continue }
             userContent.append([
                 "type": "image",
                 "source": [

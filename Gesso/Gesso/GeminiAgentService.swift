@@ -42,7 +42,7 @@ struct GeminiAgentService: AgentService {
 
     func send(
         userText: String,
-        image: UIImage?,
+        images: [UIImage],
         notesText: String?,
         history initialHistory: [[String: Any]],
         onActivity: @escaping (String) -> Void,
@@ -51,7 +51,8 @@ struct GeminiAgentService: AgentService {
         var previousInteractionId = initialHistory.first?["previous_interaction_id"] as? String
 
         var contentItems: [[String: Any]] = [["type": "text", "text": userText]]
-        if let image, let jpeg = image.jpegData(compressionQuality: 0.7) {
+        for image in images {
+            guard let jpeg = image.jpegData(compressionQuality: 0.7) else { continue }
             contentItems.append([
                 "type": "image",
                 "mime_type": "image/jpeg",
