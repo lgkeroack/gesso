@@ -14,6 +14,12 @@
 //  and can't tell an Apple Pencil touch from a resting palm -- the two would
 //  otherwise fight over the same gesture and produce jumping, erratic lines.
 //
+//  Stroke.points are stored in the web page's content coordinate space (view
+//  point + scroll offset at the moment they're drawn), not view space, so
+//  markup stays pinned to the page content when the user scrolls. Rendering
+//  and erase hit-testing convert back to the *current* view space by
+//  subtracting the live scroll offset every frame.
+//
 
 import SwiftUI
 
@@ -29,6 +35,8 @@ struct DrawingCanvas: View {
     @Binding var strokes: [Stroke]
     @Binding var activeTool: ToolMode
     var annotationStyle: AnnotationStyle
+    /// The WebView's current scroll position (webView.scrollView.contentOffset).
+    var scrollOffset: CGPoint
 
     @AppStorage("penStrokeWidth") private var penStrokeWidth: Double = 3.0
     @AppStorage("penOpacity") private var penOpacity: Double = 1.0
@@ -44,15 +52,16 @@ struct DrawingCanvas: View {
     var body: some View {
         Canvas { context, _ in
             for stroke in strokes {
-                draw(stroke.points, style: stroke.style, penWidth: stroke.penWidth, penOpacity: stroke.penOpacity, in: context)
+                draw(stroke.points.map(toView), style: stroke.style, penWidth: stroke.penWidth, penOpacity: stroke.penOpacity, in: context)
             }
             if activeTool == .draw, currentStrokePoints.count > 1 {
-                draw(currentStrokePoints, style: annotationStyle, penWidth: CGFloat(penStrokeWidth), penOpacity: CGFloat(penOpacity), in: context)
+                draw(currentStrokePoints.map(toView), style: annotationStyle, penWidth: CGFloat(penStrokeWidth), penOpacity: CGFloat(penOpacity), in: context)
             }
         }
         .overlay(
             PencilAwareTouchArea(
-                onChanged: { point in
+                onChanged: { viewPoint in
+                    let point = toContent(viewPoint)
                     switch activeTool {
                     case .draw:
                         currentStrokePoints.append(point)
@@ -75,6 +84,14 @@ struct DrawingCanvas: View {
                 }
             )
         )
+    }
+
+    private func toContent(_ viewPoint: CGPoint) -> CGPoint {
+        CGPoint(x: viewPoint.x + scrollOffset.x, y: viewPoint.y + scrollOffset.y)
+    }
+
+    private func toView(_ contentPoint: CGPoint) -> CGPoint {
+        CGPoint(x: contentPoint.x - scrollOffset.x, y: contentPoint.y - scrollOffset.y)
     }
 
     private func draw(_ points: [CGPoint], style: AnnotationStyle, penWidth: CGFloat, penOpacity: CGFloat, in context: GraphicsContext) {
