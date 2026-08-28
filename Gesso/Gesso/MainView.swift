@@ -50,6 +50,8 @@ struct MainView: View {
     @State private var urlText = ""
     @State private var isLoadingVercelDeployment = false
     @State private var vercelError: String?
+    @State private var vercelURLOptions: [URL] = []
+    @State private var showingVercelURLPicker = false
     @State private var activeTool: ToolMode = .none
     @State private var annotationStyle: AnnotationStyle = .pen
     @State private var strokes: [Stroke] = []
@@ -155,7 +157,7 @@ struct MainView: View {
 
                 if vercelAuth.isConnected {
                     Button {
-                        Task { await loadVercelDeployment() }
+                        Task { await loadVercelURLOptions() }
                     } label: {
                         if isLoadingVercelDeployment {
                             ProgressView()
@@ -165,6 +167,14 @@ struct MainView: View {
                     }
                     .buttonStyle(.flat(AppTheme.accent))
                     .disabled(isLoadingVercelDeployment)
+                    .confirmationDialog("Choose a URL", isPresented: $showingVercelURLPicker, titleVisibility: .visible) {
+                        ForEach(vercelURLOptions, id: \.self) { url in
+                            Button(url.host ?? url.absoluteString) {
+                                urlText = url.absoluteString
+                                webViewStore.webView.load(URLRequest(url: url))
+                            }
+                        }
+                    }
                 }
 
                 Button("Go", action: loadURL)
@@ -205,18 +215,18 @@ struct MainView: View {
         }
     }
 
-    private func loadVercelDeployment() async {
+    /// Fetches every production-scoped URL for the linked Vercel project and
+    /// presents them for the user to pick from, rather than auto-loading a
+    /// guessed one that might turn out to be Vercel-Authentication-gated.
+    private func loadVercelURLOptions() async {
         guard let repo = repoStore.selectedRepo, let token = vercelAuth.accessToken else { return }
         vercelError = nil
         isLoadingVercelDeployment = true
         defer { isLoadingVercelDeployment = false }
         do {
             let project = try await VercelDeploymentService.findProject(forRepo: repo, token: token)
-            let url = try await VercelDeploymentService.latestDeploymentURL(
-                project: project, branch: repo.defaultBranch, token: token
-            )
-            urlText = url.absoluteString
-            webViewStore.webView.load(URLRequest(url: url))
+            vercelURLOptions = try await VercelDeploymentService.listURLs(project: project, token: token)
+            showingVercelURLPicker = true
         } catch {
             vercelError = error.localizedDescription
         }
