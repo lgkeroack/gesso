@@ -30,6 +30,16 @@ struct ClaudeAgentService {
     private static let model = "claude-sonnet-5"
     private static let maxToolIterations = 12
 
+    /// A single turn is one blocking JSON response, not a stream -- with
+    /// tool use or extended thinking it can legitimately take a while to
+    /// produce a first byte, well past URLSession.shared's default 60s
+    /// request timeout. This session gives it much more room.
+    private static let session: URLSession = {
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = 300
+        return URLSession(configuration: config)
+    }()
+
     let apiKey: String
     let repo: GitHubRepository
     let githubToken: String
@@ -137,7 +147,7 @@ struct ClaudeAgentService {
         ]
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
 
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await Self.session.data(for: request)
         guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
             throw ClaudeAgentError.requestFailed("Couldn't parse Claude's response.")
         }

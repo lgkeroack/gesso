@@ -36,6 +36,16 @@ struct GeminiAgentService: AgentService {
     private static let interactionsURL = URL(string: "https://generativelanguage.googleapis.com/v1beta/interactions")!
     private static let maxToolIterations = 12
 
+    /// A single turn is one blocking JSON response, not a stream -- with
+    /// tool use it can legitimately take a while to produce a first byte,
+    /// well past URLSession.shared's default 60s request timeout. This
+    /// session gives it much more room.
+    private static let session: URLSession = {
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = 300
+        return URLSession(configuration: config)
+    }()
+
     let apiKey: String
     let repo: GitHubRepository
     let githubToken: String
@@ -139,7 +149,7 @@ struct GeminiAgentService: AgentService {
         }
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
 
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await Self.session.data(for: request)
         guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
             throw GeminiAgentError.requestFailed("Couldn't parse Gemini's response.")
         }
